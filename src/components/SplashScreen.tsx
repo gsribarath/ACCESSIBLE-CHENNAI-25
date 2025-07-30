@@ -31,9 +31,9 @@ const SplashScreen = () => {
           className="mb-8"
         >
           <img 
-            src="/lovable-uploads/3074886f-ff8b-43bc-96c3-1792db4bbb2d.png"
+            src="/lovable-uploads/5280c36f-ea72-4f74-8c02-7e78f5de1959.png"
             alt="Accessible Chennai Logo"
-            className="w-48 h-48 md:w-64 md:h-64 lg:w-80 lg:h-80 object-contain drop-shadow-2xl"
+            className="w-56 h-56 md:w-72 md:h-72 lg:w-96 lg:h-96 object-contain drop-shadow-2xl"
           />
         </motion.div>
         
