@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible Chennai - Inclusive Public Transport Navigation</title>
+    <meta name="description" content="Helping people with disabilities navigate Chennai's public transport system with voice guidance, screen reader support, and wheelchair accessible routes.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #136087;
+            --secondary: #0876ae;
+            --accent: #f59e0b;
+            --dark: #0f172a;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0a415d;
+            color: #f8fafc;
+        }
+        
+        /* Reduced motion settings */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+                scroll-behavior: auto !important;
+            }
+        }
+        
+        /* Accessibility focus styles */
+        .focusable:focus {
+            outline: 3px solid rgba(255, 255, 255, 0.8);
+            outline-offset: 2px;
+        }
+        
+        /* Text gradient */
+        .text-gradient {
+            background: linear-gradient(90deg, #ffffff 0%, #e0f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Floating animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        /* Pulse animation */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        /* 360 Degree Rotation */
+        @keyframes rotate360 {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .rotate-360 {
+            animation: rotate360 20s linear infinite;
+        }
+        
+        /* Pop-up animation */
+        @keyframes pop-up {
+            0% { transform: scale(0); opacity: 0; }
+            80% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .pop-up {
+            animation: pop-up 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+        
+        /* Vehicle orbit animation */
+        @keyframes orbit {
+            from { transform: rotate(0deg) translateX(150px) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(150px) rotate(-360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            @keyframes orbit {
+                from { transform: rotate(0deg) translateX(100px) rotate(0deg); }
+                to { transform: rotate(360deg) translateX(100px) rotate(-360deg); }
+            }
+        }
+        
+        .orbit {
+            animation: orbit 12s linear infinite;
+        }
+        
+        /* Glow effect */
+        .glow {
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.7));
+        }
+        
+        /* Card hover effects */
+        .feature-card {
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+        }
+        
+        .feature-card:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .feature-card:active {
+            transform: scale(0.98);
+        }
+        
+        /* Modal transition */
+        .modal-enter {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+        
+        .modal-enter-active {
+            opacity: 1;
+            transform: translateX(0);
+            transition: opacity 300ms, transform 300ms;
+        }
+        
+        .modal-exit {
+            opacity: 1;
+        }
+        
+        .modal-exit-active {
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 300ms, transform 300ms;
+        }
+        
+        /* Light pulse effect */
+        @keyframes light-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
+        
+        .light-pulse {
+            animation: light-pulse 1s cubic-bezier(0.4, 0, 0.6, 1);
+        }
+        
+        /* 3D rotation effect */
+        @keyframes rotate-y {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+        
+        .rotate-y {
+            animation: rotate-y 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+    <!-- Skip to content link for screen readers -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:px-4 focus:py-2 focus:bg-white focus:text-blue-600 focus:rounded-md focus:z-50">
+        Skip to main content
+    </a>
+
+    <!-- Header with navigation -->
+    <header class="bg-blue-600/20 backdrop-blur-md sticky top-0 z-50 shadow-lg">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <a href="#" class="flex items-center space-x-3 focusable rounded-md" data-aos="fade-right">
+                    <div class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white">
+                            <path d="M30,20 L70,20 L80,40 L75,60 L60,80 L40,80 L25,60 L20,40 Z" fill="none" stroke="currentColor" stroke-width="2"/>
+                            <circle cx="50" cy="50" r="15" fill="none" stroke="currentColor" stroke-width="3"/>
+                            <circle cx="50" cy="50" r="5" fill="currentColor"/>
+                            <path d="M65,50 L80,50 M50,65 L50,80 M35,50 L20,50 M50,35 L50,20" stroke="currentColor" stroke-width="3"/>
+                        </svg>
+                    </div>
+                    <h1 class="text-xl font-bold text-white">Accessible<span class="text-gradient">Chennai</span></h1>
+                </a>
+            </div>
+            
+            <nav aria-label="Main navigation" data-aos="fade-left">
+                <ul class="flex space-x-1">
+                    <li>
+                        <a href="#" class="px-3 py-2 rounded-md text-sm font-medium text-white hover:bg-white/10 focusable transition-all duration-300" aria-current="page">Home</a>
+                    </li>
+                    <li>
+                        <a href="alerts.html" class="px-3 py-2 rounded-md text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 focusable transition-all duration-300">Alerts</a>
+                    </li>
+                    <li>
+                        <a href="community.html" class="px-3 py-2 rounded-md text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 focusable transition-all duration-300">Community</a>
+                    </li>
+                    <li>
+                        <a href="navigate.html" class="px-3 py-2 rounded-md text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 focusable transition-all duration-300">Navigate</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main id="main-content" class="flex-grow">
+        <!-- Hero section -->
+        <section aria-labelledby="hero-heading" class="relative overflow-hidden py-12 md:py-24">
+            <!-- Vehicle orbit animation in top right corner -->
+            <div class="absolute top-0 right-0 w-full h-full overflow-hidden pointer-events-none">
+                <div class="absolute top-0 right-0 w-full h-full">
+                    <!-- Orbit container -->
+                    <div class="relative w-full h-full">
+                        <!-- Vehicles in orbit -->
+                        <div class="orbit absolute top-1/4 -right-1/4 md:top-1/4 md:-right-1/4">
+                            <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-xl glow">
+                                <i class="fas fa-bus"></i>
+                            </div>
+                        </div>
+                        <div class="orbit absolute top-1/4 -right-1/4 md:top-1/4 md:-right-1/4" style="animation-delay: -3s;">
+                            <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-xl glow">
+                                <i class="fas fa-subway"></i>
+                            </div>
+                        </div>
+                        <div class="orbit absolute top-1/4 -right-1/4 md:top-1/4 md:-right-1/4" style="animation-delay: -6s;">
+                            <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-xl glow">
+                                <i class="fas fa-taxi"></i>
+                            </div>
+                        </div>
+                        <div class="orbit absolute top-1/4 -right-1/4 md:top-1/4 md:-right-1/4" style="animation-delay: -9s;">
+                            <div class="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white text-xl glow">
+                                <i class="fas fa-wheelchair"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="container mx-auto px-4 relative z-10">
+                <div class="flex flex-col items-center text-center">
+                    <div class="max-w-3xl space-y-8" data-aos="fade-up">
+                        <h1 id="hero-heading" class="text-4xl md:text-6xl font-bold leading-tight">
+                            <span class="text-white">Chennai Transport</span><br>
+                            <span class="text-gradient">Made Accessible</span>
+                        </h1>
+                        <p class="text-xl text-white/90 max-w-2xl mx-auto">
+                            Navigate the city with confidence using our inclusive transportation platform designed for everyone.
+                        </p>
+                        <div class="pt-8">
+                            <a href="journey.html" class="inline-block bg-white text-blue-600 px-12 py-4 rounded-full font-bold hover:bg-gray-100 focusable transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl text-lg md:text-xl" data-aos="zoom-in" data-aos-delay="300">
+                                <i class="fas fa-play mr-2"></i> Get Started
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Dashboard -->
+        <section aria-labelledby="stats-heading" class="py-16 bg-white/10 backdrop-blur-md">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12" data-aos="fade-up">
+                    <h2 id="stats-heading" class="text-3xl font-bold mb-3 text-white">
+                        <span class="text-gradient">Real-Time</span> City Data
+                    </h2>
+                    <p class="text-lg text-white/80">Live accessibility metrics across Chennai</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="feature-card bg-white/5 backdrop-blur-md p-6 rounded-xl border border-white/10 hover:border-white/30 cursor-pointer" 
+                         onclick="openModal('people-modal')"
+                         data-aos="fade-up" data-aos-delay="100">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full mx-auto mb-4 flex items-center justify-center transform transition-transform duration-300">
+                                <i class="fas fa-users text-2xl text-white"></i>
+                            </div>
+                            <div class="stats-counter text-4xl font-bold text-white mb-2" data-target="1200000">0</div>
+                            <p class="text-white/80">People with disabilities in Chennai</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card bg-white/5 backdrop-blur-md p-6 rounded-xl border border-white/10 hover:border-white/30 cursor-pointer" 
+                         onclick="openModal('buses-modal')"
+                         data-aos="fade-up" data-aos-delay="200">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full mx-auto mb-4 flex items-center justify-center transform transition-transform duration-300">
+                                <i class="fas fa-bus text-2xl text-white"></i>
+                            </div>
+                            <div class="stats-counter text-4xl font-bold text-white mb-2" data-target="68">0</div>
+                            <p class="text-white/80">% Accessible buses in fleet</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card bg-white/5 backdrop-blur-md p-6 rounded-xl border border-white/10 hover:border-white/30 cursor-pointer" 
+                         onclick="openModal('metro-modal')"
+                         data-aos="fade-up" data-aos-delay="300">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-gradient-to-r from-amber-400 to-orange-400 rounded-full mx-auto mb-4 flex items-center justify-center transform transition-transform duration-300">
+                                <i class="fas fa-subway text-2xl text-white"></i>
+                            </div>
+                            <div class="stats-counter text-4xl font-bold text-white mb-2" data-target="41">0</div>
+                            <p class="text-white/80">Fully accessible metro stations</p>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card bg-white/5 backdrop-blur-md p-6 rounded-xl border border-white/10 hover:border-white/30 cursor-pointer" 
+                         onclick="openModal('buildings-modal')"
+                         data-aos="fade-up" data-aos-delay="400">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full mx-auto mb-4 flex items-center justify-center transform transition-transform duration-300">
+                                <i class="fas fa-building text-2xl text-white"></i>
+                            </div>
+                            <div class="stats-counter text-4xl font-bold text-white mb-2" data-target="85">0</div>
+                            <p class="text-white/80">% Buildings with ramp access</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Accessibility features section -->
+        <section aria-labelledby="features-heading" class="py-16 bg-white/5 backdrop-blur-md" id="features">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12" data-aos="fade-up">
+                    <h2 id="features-heading" class="text-3xl font-bold mb-3 text-white">Accessibility Features</h2>
+                    <p class="text-lg text-white/80 max-w-2xl mx-auto">
+                        Choose the mode that best suits your needs. Our system remembers your preference for future visits.
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- AI Visual Recognition Card -->
+                    <div class="feature-card bg-white/5 backdrop-blur-md p-6 rounded-xl border border-white/10 hover:border-white/30 cursor-pointer" 
+                         onclick="openModal('ai-modal')"
+                         data-aos="fade-up" data-aos-delay="100">
+                        <div class="w-16 h-16 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-2xl flex items-center justify-center mb-4 transform transition-transform duration-300">
+                            <i class="fas fa-eye text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">AI Visual Recognition</h3>
+                        <p class="text-white/80 mb-4">
+                            Advanced computer vision technology that identifies accessibility barriers in real-time.
+                        </p>
+                        <div class="space-y-3">
+                            <div class="flex items-center text-sm">
+                                <i class="fas fa-check text-green-400 mr-3"></i>
+                                <span class="text-white/80">Real-time obstacle detection</span>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <i class="fas fa-check text-green-400 mr-3"></i>
+                                <span class="text-white/80">Smart route optimization</span>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <i class="fas fa-check text-green-400 mr-3"></i>
+                                <span class="text-white/80">Voice-guided navigation</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Smart Mapping Card -->
+                    <div class="feature-card bg-white/5 backdrop-blur-md p-6 rounded-xl border border-white/10 hover:border-white/30 cursor-pointer" 
+                         onclick="openModal('mapping-modal')"
+                         data-aos="fade-up" data-aos-delay="200">
+                        <div class="w-16 h-16 bg-gradient-to-r from-green-400 to-emerald-400 rounded-2xl flex items-center justify-center mb-4 transform transition-transform duration-300">
+                            <i class="fas fa-map-marked-alt text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">Smart Mapping</h3>
+                        <p class="text-white/80 mb-4">
+                            Interactive 3D maps with accessibility overlays and real-time updates from the community.
+                        </p>
+                        <div class="space-y-3">
+                            <div class="flex items-center text-sm">
+                                <i class="fas fa-check text-green-400 mr-3"></i>
+                                <span class="text-white/80">Accessibility overlays</span>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <i class="fas fa-check text-green-400 mr-3"></i>
+                                <span class="text-white/80">Real-time updates</span>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <i class="fas fa-check text-green-400 mr-3"></i>
+                                <span class="text-white/80">Community reports</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Community Network Card -->
+                    <div class="feature-card bg-white/5 backdrop-blur-md p-6 rounded-xl border border-white/10 hover:border-white/30 cursor-pointer" 
+                         onclick="openModal('community-modal')"
+                         data-aos="fade-up" data-aos-delay="300">
+                        <div class="w-16 h-16 bg-gradient-to-r from-amber-400 to-orange-400 rounded-2xl flex items-center justify-center mb-4 transform transition-transform duration-300">
+                            <i class="fas fa-users text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-white mb-2">Community Network</h3>
+                        <p class="text-white/80 mb-4">
+                            Connect with local volunteers and accessibility advocates for real-time assistance.
+                        </p>
+                        <div class="space-y-3">
+                            <div class="flex items-center text-sm">
+                                <i class="fas fa-check text-green-400 mr-3"></i>
+                                <span class="text-white/80">Local volunteers</span>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <i class="fas fa-check text-green-400 mr-3"></i>
+                                <span class="text-white/80">Real-time assistance</span>
+                            </div>
+                            <div class="flex items-center text-sm">
+                                <i class="fas fa-check text-green-400 mr-3"></i>
+                                <span class="text-white/80">Support network</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonials section -->
+        <section aria-labelledby="testimonials-heading" class="py-16 bg-white/10 backdrop-blur-md">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12" data-aos="fade-up">
+                    <h2 id="testimonials-heading" class="text-3xl font-bold mb-3 text-white">Community Voices</h2>
+                    <p class="text-lg text-white/80 max-w-2xl mx-auto">
+                        Stories from our incredible users
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="feature-card bg-white/5 backdrop-blur-md p-6 rounded-xl border border-white/10 hover:border-white/30 cursor-pointer" 
+                         onclick="openModal('testimonial1-modal')"
+                         data-aos="fade-up" data-aos-delay="100">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full overflow-hidden mr-3 bg-blue-400 flex items-center justify-center text-white font-medium">PK</div>
+                            <div>
+                                <h4 class="font-medium text-white">Priya K.</h4>
+                                <p class="text-sm text-blue-300">Wheelchair User</p>
+                            </div>
+                        </div>
+                        <p class="text-white/80 italic">
+                            "This app has transformed how I navigate Chennai. The AI features are incredible!"
+                        </p>
+                        <div class="mt-3 flex text-amber-400">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card bg-white/5 backdrop-blur-md p-6 rounded-xl border border-white/10 hover:border-white/30 cursor-pointer" 
+                         onclick="openModal('testimonial2-modal')"
+                         data-aos="fade-up" data-aos-delay="200">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full overflow-hidden mr-3 bg-green-400 flex items-center justify-center text-white font-medium">AM</div>
+                            <div>
+                                <h4 class="font-medium text-white">Arun M.</h4>
+                                <p class="text-sm text-green-300">Parent</p>
+                            </div>
+                        </div>
+                        <p class="text-white/80 italic">
+                            "The community features help me connect with other parents. It's amazing how we can share accessible routes."
+                        </p>
+                        <div class="mt-3 flex text-amber-400">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="feature-card bg-white/5 backdrop-blur-md p-6 rounded-xl border border-white/10 hover:border-white/30 cursor-pointer" 
+                         onclick="openModal('testimonial3-modal')"
+                         data-aos="fade-up" data-aos-delay="300">
+                        <div class="flex items-center mb-4">
+                            <div class="w-12 h-12 rounded-full overflow-hidden mr-3 bg-amber-400 flex items-center justify-center text-white font-medium">MR</div>
+                            <div>
+                                <h4 class="font-medium text-white">Meena R.</h4>
+                                <p class="text-sm text-amber-300">Senior Citizen</p>
+                            </div>
+                        </div>
+                        <p class="text-white/80 italic">
+                            "The voice navigation feature is a game-changer for my daily commute."
+                        </p>
+                        <div class="mt-3 flex text-amber-400">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to action -->
+        <section aria-labelledby="cta-heading" class="py-16 bg-white/10 backdrop-blur-md">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto text-center" data-aos="zoom-in">
+                    <h2 id="cta-heading" class="text-3xl font-bold mb-4 text-white">Ready to Navigate Chennai with Confidence?</h2>
+                    <p class="text-lg mb-6 text-white/90">
+                        Download the Accessible Chennai app today and experience public transport designed for everyone.
+                    </p>
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <button class="px-6 py-3 bg-white text-blue-600 font-medium rounded-lg hover:bg-gray-100 focusable transition-all duration-300 transform hover:scale-105">
+                            <div class="flex items-center">
+                                <i class="fab fa-apple mr-2 text-xl"></i>
+                                <div class="text-left">
+                                    <div class="text-xs">Download on the</div>
+                                    <div class="text-lg font-semibold leading-5">App Store</div>
+                                </div>
+                            </div>
+                        </button>
+                        <button class="px-6 py-3 bg-white text-blue-600 font-medium rounded-lg hover:bg-gray-100 focusable transition-all duration-300 transform hover:scale-105">
+                            <div class="flex items-center">
+                                <i class="fab fa-google-play mr-2 text-xl"></i>
+                                <div class="text-left">
+                                    <div class="text-xs">Get it on</div>
+                                    <div class="text-lg font-semibold leading-5">Google Play</div>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-blue-600/20 backdrop-blur-md text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Accessible Chennai</h3>
+                    <p class="text-white/80">
+                        Empowering inclusive mobility through technology and community collaboration.
+                    </p>
+                    <div class="flex space-x-4 mt-4">
+                        <a href="#" class="text-white/80 hover:text-white focusable transition-all duration-300" aria-label="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="text-white/80 hover:text-white focusable transition-all duration-300" aria-label="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="text-white/80 hover:text-white focusable transition-all duration-300" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-white/80 hover:text-white focusable transition-all duration-300">Developer Guide</a></li>
+                        <li><a href="#" class="text-white/80 hover:text-white focusable transition-all duration-300">Privacy Policy</a></li>
+                        <li><a href="#" class="text-white/80 hover:text-white focusable transition-all duration-300">Terms of Service</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Resources</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-white/80 hover:text-white focusable transition-all duration-300">API Documentation</a></li>
+                        <li><a href="#" class="text-white/80 hover:text-white focusable transition-all duration-300">Accessibility Guidelines</a></li>
+                        <li><a href="#" class="text-white/80 hover:text-white focusable transition-all duration-300">Transit Maps</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contact</h4>
+                    <address class="not-italic text-white/80 space-y-2">
+                        <p>123 Accessibility Lane</p>
+                        <p>Chennai, Tamil Nadu 600001</p>
+                        <p>Email: <a href="mailto:info@accessiblechennai.in" class="hover:text-white focusable transition-all duration-300">info@accessiblechennai.in</a></p>
+                        <p>Phone: <a href="tel:+914412345678" class="hover:text-white focusable transition-all duration-300">+91 44 1234 5678</a></p>
+                    </address>
+                </div>
+            </div>
+            
+            <div class="border-t border-white/20 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-white/80 mb-4 md:mb-0">
+                    &copy; 2024 Accessible Chennai. All rights reserved.
+                </p>
+                <div class="flex space-x-4">
+                    <a href="#" class="text-white/80 hover:text-white focusable transition-all duration-300">Accessibility Statement</a>
+                    <a href="#" class="text-white/80 hover:text-white focusable transition-all duration-300">Feedback</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal Container -->
+    <div id="modal-container" class="fixed inset-0 z-50 flex items-center justify-center p-4 hidden">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeModal()"></div>
+        <div id="modal-content" class="relative bg-white/90 backdrop-blur-xl rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-8 transform transition-all duration-300">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-600 hover:text-gray-900 focusable">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+            <div id="modal-body">
+                <!-- Content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- AOS Animation Library -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize AOS animation library
+            AOS.init({
+                duration: 800,
+                easing: 'ease-in-out',
+                once: true,
+                mirror: false
+            });
+            
+            // Stats counter animation
+            function animateCounter(element, target, duration = 2000) {
+                let start = 0;
+                const increment = target / (duration / 16);
+                
+                function updateCounter() {
+                    start += increment;
+                    if (start < target) {
+                        element.textContent = Math.floor(start).toLocaleString();
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        element.textContent = target.toLocaleString();
+                    }
+                }
+                updateCounter();
+            }
+            
+            // Animate counters when they come into view
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const counters = document.querySelectorAll('.stats-counter');
+                        counters.forEach(counter => {
+                            const target = parseInt(counter.dataset.target);
+                            animateCounter(counter, target);
+                        });
+                        observer.disconnect();
+                    }
+                });
+            }, { threshold: 0.5 });
+            
+            const statsSection = document.getElementById('stats-heading');
+            if (statsSection) {
+                observer.observe(statsSection);
+            }
+            
+            // Card click effects
+            document.querySelectorAll('.feature-card').forEach(card => {
+                card.addEventListener('click', function(e) {
+                    // Add rotation and pulse effects
+                    this.classList.add('rotate-y', 'light-pulse');
+                    
+                    // Remove animation classes after they complete
+                    setTimeout(() => {
+                        this.classList.remove('rotate-y', 'light-pulse');
+                    }, 800);
+                });
+            });
+            
+            // Reduced motion preference
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (reduceMotion) {
+                document.documentElement.style.scrollBehavior = 'auto';
+                document.querySelectorAll('[data-aos]').forEach(el => {
+                    el.removeAttribute('data-aos');
+                });
+                document.querySelectorAll('.orbit').forEach(el => {
+                    el.style.animation = 'none';
+                });
+            }
+        });
+        
+        // Modal functions
+        function openModal(modalType) {
+            const modalContainer = document.getElementById('modal-container');
+            const modalBody = document.getElementById('modal-body');
+            
+            // Set modal content based on which card was clicked
+            let content = '';
+            switch(modalType) {
+                case 'people-modal':
+                    content = `
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">People with Disabilities in Chennai</h3>
+                        <p class="text-gray-700 mb-6">Chennai has approximately 1.2 million residents with various disabilities. Our platform serves as a bridge to make the city more accessible for everyone.</p>
+                        <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                            <h4 class="font-semibold text-blue-800 mb-2">Key Statistics</h4>
+                            <ul class="list-disc pl-5 text-gray-700">
+                                <li class="mb-1">45% mobility impairments</li>
+                                <li class="mb-1">30% visual impairments</li>
+                                <li class="mb-1">15% hearing impairments</li>
+                                <li>10% cognitive disabilities</li>
+                            </ul>
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1516589091380-5d5e3b6b1e37?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Accessible city" class="rounded-lg w-full h-auto mb-6">
+                    `;
+                    break;
+                case 'buses-modal':
+                    content = `
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Accessible Buses in Chennai</h3>
+                        <p class="text-gray-700 mb-6">68% of Chennai's bus fleet is now wheelchair accessible, with low-floor entry and dedicated spaces.</p>
+                        <div class="bg-green-50 p-4 rounded-lg mb-6">
+                            <h4 class="font-semibold text-green-800 mb-2">Features</h4>
+                            <ul class="list-disc pl-5 text-gray-700">
+                                <li class="mb-1">Priority seating</li>
+                                <li class="mb-1">Audio-visual announcements</li>
+                                <li class="mb-1">Wheelchair ramps</li>
+                                <li>Real-time tracking</li>
+                            </ul>
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Accessible bus" class="rounded-lg w-full h-auto mb-6">
+                    `;
+                    break;
+                case 'metro-modal':
+                    content = `
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Accessible Metro Stations</h3>
+                        <p class="text-gray-700 mb-6">41 metro stations across Chennai are fully accessible with elevators, tactile paths, and accessible ticket counters.</p>
+                        <div class="bg-amber-50 p-4 rounded-lg mb-6">
+                            <h4 class="font-semibold text-amber-800 mb-2">Accessibility Features</h4>
+                            <ul class="list-disc pl-5 text-gray-700">
+                                <li class="mb-1">Tactile guidance paths</li>
+                                <li class="mb-1">Elevators at all levels</li>
+                                <li class="mb-1">Accessible restrooms</li>
+                                <li>Staff assistance available</li>
+                            </ul>
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1519817650390-64a93db51149?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Metro station" class="rounded-lg w-full h-auto mb-6">
+                    `;
+                    break;
+                case 'buildings-modal':
+                    content = `
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Building Accessibility</h3>
+                        <p class="text-gray-700 mb-6">85% of public buildings in Chennai now have ramp access, with many offering additional accessibility features.</p>
+                        <div class="bg-purple-50 p-4 rounded-lg mb-6">
+                            <h4 class="font-semibold text-purple-800 mb-2">Common Features</h4>
+                            <ul class="list-disc pl-5 text-gray-700">
+                                <li class="mb-1">Wheelchair ramps</li>
+                                <li class="mb-1">Accessible restrooms</li>
+                                <li class="mb-1">Braille signage</li>
+                                <li>Automatic doors</li>
+                            </ul>
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Accessible building" class="rounded-lg w-full h-auto mb-6">
+                    `;
+                    break;
+                case 'ai-modal':
+                    content = `
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">AI Visual Recognition</h3>
+                        <p class="text-gray-700 mb-6">Our advanced computer vision technology helps identify accessibility barriers in real-time and suggests alternative routes.</p>
+                        <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                            <h4 class="font-semibold text-blue-800 mb-2">How It Works</h4>
+                            <ul class="list-disc pl-5 text-gray-700">
+                                <li class="mb-1">Scans surroundings for obstacles</li>
+                                <li class="mb-1">Identifies accessible pathways</li>
+                                <li class="mb-1">Provides audio descriptions</li>
+                                <li>Updates in real-time</li>
+                            </ul>
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1573164713988-8665fc963095?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="AI technology" class="rounded-lg w-full h-auto mb-6">
+                    `;
+                    break;
+                case 'mapping-modal':
+                    content = `
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Smart Mapping</h3>
+                        <p class="text-gray-700 mb-6">Interactive 3D maps with accessibility overlays help you navigate Chennai with confidence.</p>
+                        <div class="bg-green-50 p-4 rounded-lg mb-6">
+                            <h4 class="font-semibold text-green-800 mb-2">Features</h4>
+                            <ul class="list-disc pl-5 text-gray-700">
+                                <li class="mb-1">Accessibility heatmaps</li>
+                                <li class="mb-1">Real-time updates</li>
+                                <li class="mb-1">Community reports</li>
+                                <li>Offline mode available</li>
+                            </ul>
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1467269204594-9661b134dd2b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Smart mapping" class="rounded-lg w-full h-auto mb-6">
+                    `;
+                    break;
+                case 'community-modal':
+                    content = `
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Community Network</h3>
+                        <p class="text-gray-700 mb-6">Connect with local volunteers and accessibility advocates who can provide real-time assistance.</p>
+                        <div class="bg-amber-50 p-4 rounded-lg mb-6">
+                            <h4 class="font-semibold text-amber-800 mb-2">Benefits</h4>
+                            <ul class="list-disc pl-5 text-gray-700">
+                                <li class="mb-1">Local guides</li>
+                                <li class="mb-1">Real-time assistance</li>
+                                <li class="mb-1">Accessibility reviews</li>
+                                <li>Support network</li>
+                            </ul>
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Community support" class="rounded-lg w-full h-auto mb-6">
+                    `;
+                    break;
+                case 'testimonial1-modal':
+                    content = `
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Priya's Story</h3>
+                        <div class="flex items-center mb-6">
+                            <div class="w-16 h-16 rounded-full overflow-hidden mr-4 bg-blue-400 flex items-center justify-center text-white text-2xl font-medium">PK</div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">Priya K.</h4>
+                                <p class="text-blue-600">Wheelchair User</p>
+                            </div>
+                        </div>
+                        <blockquote class="text-gray-700 italic text-lg mb-6 border-l-4 border-blue-400 pl-4 py-2">
+                            "This app has transformed how I navigate Chennai. The AI features are incredible! I can now plan my routes with confidence knowing about accessible paths. The community features also help me connect with others who face similar challenges."
+                        </blockquote>
+                        <div class="flex text-amber-400 mb-6">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Happy user" class="rounded-lg w-full h-auto">
+                    `;
+                    break;
+                case 'testimonial2-modal':
+                    content = `
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Arun's Story</h3>
+                        <div class="flex items-center mb-6">
+                            <div class="w-16 h-16 rounded-full overflow-hidden mr-4 bg-green-400 flex items-center justify-center text-white text-2xl font-medium">AM</div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">Arun M.</h4>
+                                <p class="text-green-600">Parent</p>
+                            </div>
+                        </div>
+                        <blockquote class="text-gray-700 italic text-lg mb-6 border-l-4 border-green-400 pl-4 py-2">
+                            "The community features help me connect with other parents of children with disabilities. It's amazing how we can share accessible routes and support each other in navigating the city. The real-time updates have saved us so much time and stress."
+                        </blockquote>
+                        <div class="flex text-amber-400 mb-6">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Happy parent" class="rounded-lg w-full h-auto">
+                    `;
+                    break;
+                case 'testimonial3-modal':
+                    content = `
+                        <h3 class="text-2xl font-bold text-gray-800 mb-4">Meena's Story</h3>
+                        <div class="flex items-center mb-6">
+                            <div class="w-16 h-16 rounded-full overflow-hidden mr-4 bg-amber-400 flex items-center justify-center text-white text-2xl font-medium">MR</div>
+                            <div>
+                                <h4 class="font-semibold text-gray-800">Meena R.</h4>
+                                <p class="text-amber-600">Senior Citizen</p>
+                            </div>
+                        </div>
+                        <blockquote class="text-gray-700 italic text-lg mb-6 border-l-4 border-amber-400 pl-4 py-2">
+                            "The voice navigation feature is a game-changer for my daily commute. As someone with low vision, the detailed audio descriptions make all the difference in my independence. I can now travel across Chennai without needing constant assistance from my family."
+                        </blockquote>
+                        <div class="flex text-amber-400 mb-6">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <img src="https://images.unsplash.com/photo-1551290464-66719418ca54?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" alt="Happy senior" class="rounded-lg w-full h-auto">
+                    `;
+                    break;
+            }
+            
+            modalBody.innerHTML = content;
+            modalContainer.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeModal() {
+            const modalContainer = document.getElementById('modal-container');
+            modalContainer.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+    </script>
+</body>
+</html>
