@@ -211,13 +211,8 @@
         <div class="container mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <a href="#" class="flex items-center space-x-3 focusable rounded-md" data-aos="fade-right">
-                    <div class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
-                        <img src="ACCESSIBLECHENNAII.png" alt="Accessible Chennai Logo" class="w-6 h-6 object-contain">
-                            <path d="M30,20 L70,20 L80,40 L75,60 L60,80 L40,80 L25,60 L20,40 Z" fill="none" stroke="currentColor" stroke-width="2"/>
-                            <circle cx="50" cy="50" r="15" fill="none" stroke="currentColor" stroke-width="3"/>
-                            <circle cx="50" cy="50" r="5" fill="currentColor"/>
-                            <path d="M65,50 L80,50 M50,65 L50,80 M35,50 L20,50 M50,35 L50,20" stroke="currentColor" stroke-width="3"/>
-                        </svg>
+                    <div class="w-20 h-20 rounded-full flex items-center justify-center">
+                        <img src="ACCESSIBLECHENNAII.png" alt="Accessible Chennai Logo" class="w-16 h-16 object-cover rounded-full">
                     </div>
                     <h1 class="text-xl font-bold text-white">Accessible<span class="text-gradient">Chennai</span></h1>
                 </a>
@@ -641,7 +636,7 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Splash screen logic
+            // Splash screen logic - VISIBLE FOR 0.5 SECONDS
             setTimeout(() => {
                 const splash = document.getElementById('splash');
                 splash.classList.add('opacity-0', 'transition-opacity', 'duration-500');
@@ -657,8 +652,8 @@
                         once: true,
                         mirror: false
                     });
-                }, 500);
-            }, 3000);
+                }, 0);
+            }, 500);
 
             // Stats counter animation
             function animateCounter(element, target, duration = 2000) {

@@ -207,13 +207,12 @@
     </a>
 
     <!-- Header with navigation -->
-    <header class="bg-blue-600/20 backdrop-blur-md sticky top-0 z-40 hidden" id="header">
+    <header class="bg-blue-600/20 backdrop-blur-md sticky top-0 z-40 shadow-lg hidden" id="header">
         <div class="container mx-auto px-4 py-3 flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <!-- Logo Placeholder -->
                 <a href="#" class="flex items-center space-x-3 focusable rounded-md" data-aos="fade-right">
-                    <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
-                        <img src="logo-placeholder.png" alt="Logo Placeholder" class="h-8 w-8 object-contain">
+                    <div class="w-20 h-20 rounded-full flex items-center justify-center">
+                        <img src="ACCESSIBLECHENNAII.png" alt="Accessible Chennai Logo" class="w-16 h-16 object-cover rounded-full">
                     </div>
                     <h1 class="text-xl font-bold text-white">Accessible<span class="text-gradient">Chennai</span></h1>
                 </a>
@@ -637,7 +636,7 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Splash screen logic
+            // Splash screen logic - VISIBLE FOR 0.5 SECONDS
             setTimeout(() => {
                 const splash = document.getElementById('splash');
                 splash.classList.add('opacity-0', 'transition-opacity', 'duration-500');
@@ -653,8 +652,8 @@
                         once: true,
                         mirror: false
                     });
-                }, 500);
-            }, 1500);
+                }, 0);
+            }, 500);
 
             // Stats counter animation
             function animateCounter(element, target, duration = 2000) {
