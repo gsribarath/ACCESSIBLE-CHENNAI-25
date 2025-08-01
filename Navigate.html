@@ -408,13 +408,17 @@
     <div class="max-w-7xl mx-auto px-4 py-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center">
-          <i class="fas fa-wheelchair text-3xl text-blue-300 mr-3" aria-hidden="true"></i>
-          <h1 class="text-2xl font-bold">Navigate Chennai</h1>
+          <a href="#" class="flex items-center space-x-1 focusable rounded-md">
+            <div class="w-20 h-20 rounded-full flex items-center justify-center">
+              <img src="ACCESSIBLECHENNAII.png" alt="Accessible Chennai Logo" class="w-16 h-16 object-cover rounded-full">
+            </div>
+            <h1 class="text-2xl font-bold">Accessible<span class="bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent">  Chennai</span></h1>
+          </a>
         </div>
         <nav>
-          <a href="#" class="text-blue-200 hover:text-white mx-3" onpointerenter="announceToUser('Home')">Home</a>
-          <a href="#" class="text-white font-semibold mx-3" onpointerenter="announceToUser('Navigate')">Navigate</a>
-          <a href="#" class="text-blue-200 hover:text-white mx-3" onpointerenter="announceToUser('Alerts')">Alerts</a>
+          <a href="Home.html" class="text-blue-200 hover:text-white mx-3" onpointerenter="announceToUser('Home')">Home</a>
+          <a href="navigate.html" class="text-white font-semibold mx-3" onpointerenter="announceToUser('Navigate')">Navigate</a>
+          <a href="alerts.html" class="text-blue-200 hover:text-white mx-3" onpointerenter="announceToUser('Alerts')">Alerts</a>
         </nav>
       </div>
     </div>
@@ -488,8 +492,8 @@
                   <option value="Besant Nagar">Besant Nagar</option>
                   <option value="Chetpet">Chetpet</option>
                   <option value="Chennai Central Railway Station">Chennai Central Railway Station</option>
-                  <option value="Chennai International Airport2w">Chennai International Airport</option>
-                  <option value="Chromepet">Chromepet</option>2w
+                  <option value="Chennai International Airport">Chennai International Airport</option>
+                  <option value="Chromepet">Chromepet</option>
                   <option value="Egmore">Egmore</option>
                   <option value="Express Avenue Mall">Express Avenue Mall</option>
                   <option value="Guindy">Guindy</option>
@@ -621,6 +625,7 @@
         </form>
       </div>
     </section>
+
     <!-- Quick Locations -->
     <section class="mb-16 slide-up" style="transition-delay: 0.2s" aria-labelledby="quick-locations-heading">
       <div class="glass-dark p-8 rounded-3xl">
@@ -840,8 +845,7 @@
     <section id="route-results" class="mb-12 hidden">
       <div class="glass-strong p-8 rounded-3xl">
         <h3 class="text-3xl font-bold mb-6 text-center" onpointerenter="announceToUser('Your Accessible Route Options')">
-          <i class="fas fa-route text-blue-3
-System: 00 mr-3" aria-hidden="true"></i>
+          <i class="fas fa-route text-blue-300 mr-3" aria-hidden="true"></i>
           Your Accessible Route Options
         </h3>
         <div id="route-cards" class="space-y-6">
@@ -940,10 +944,11 @@ System: 00 mr-3" aria-hidden="true"></i>
         });
       });
     }
+
     function setQuickLocation(location) {
-      document.getElementById('end-location').value = location;
-      document.getElementById('end-location').focus();
-      announce(`Destination set to ${location}. You can now find your accessible route.`);
+      document.getElementById('destination').value = location;
+      document.getElementById('destination').focus();
+      announceToUser(`Destination set to ${location}. You can now find your accessible route.`);
     }
 
     function toggleVoiceAssistance() {
