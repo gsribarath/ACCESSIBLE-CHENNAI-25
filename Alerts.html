@@ -1,75 +1,99 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Accessible Chennai - Live Alerts Dashboard</title>
-  <meta name="description" content="Real-time accessibility alerts for Chennai's public transport system with voice navigation and inclusive features.">
+  <meta name="description" content="Real-time accessibility alerts for Chennai's public transport system with inclusive features.">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-
     :root {
-      --primary: #136087;
-      --secondary: #0876ae;
+      --primary: #0b596c;
+      --primary-dark: #106e8d;
       --accent: #f59e0b;
-      --dark: #0f172a;
       --success: #10b981;
-      --warning: #f59e0b;
-      --error: #ef4444;
-      --glass: rgba(255, 255, 255, 0.1);
+      --danger: #ef4444;
+      --blue-gradient: linear-gradient(135deg, #0a4861 0%, #145974 100%);
+      --glow-blue: 0 0 20px rgba(59, 130, 246, 0.5);
+      --glow-accent: 0 0 15px rgba(245, 158, 11, 0.6);
+    }
+
+    * {
+      scroll-behavior: smooth;
     }
 
     body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #0a415d;
-      color: #f8fafc;
+      background: linear-gradient(135deg, #08354a 0%, #05374e 25%, #0e4e6c 50%, #0d5565 75%, #0e5f71 100%);
+      background-size: 400% 400%;
+      animation: gradientFlow 15s ease infinite;
       min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      color: #f8fafc;
       display: flex;
       flex-direction: column;
     }
 
-    .focusable:focus {
-      outline: 3px solid rgba(255, 255, 255, 0.8);
-      outline-offset: 2px;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      * {
-        animation: none !important;
-        transition: none !important;
-        scroll-behavior: auto !important;
-      }
+    @keyframes gradientFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
     }
 
     .glass {
-      background: var(--glass);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .glass-dark {
-      background: rgba(0, 0, 0, 0.2);
+      background: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(15px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     }
 
-    .text-gradient {
-      background: linear-gradient(90deg, #ffffff 0%, #e0f2fe 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    .glass-strong {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
     }
 
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-10px); }
+    .glow-primary {
+      box-shadow: var(--glow-blue);
+      transition: all 0.3s ease;
     }
 
-    .floating {
-      animation: float 6s ease-in-out infinite;
+    .glow-primary:hover {
+      box-shadow: 0 0 30px rgba(59, 130, 246, 0.8);
+      transform: translateY(-2px);
+    }
+
+    .hover-light {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hover-light::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .hover-light:hover::before {
+      left: 100%;
+    }
+
+    .parallax-section {
+      transform: translateY(50px);
+      opacity: 0;
+      transition: all 0.8s ease;
+    }
+
+    .parallax-section.visible {
+      transform: translateY(0);
+      opacity: 1;
     }
 
     .status-indicator {
@@ -132,9 +156,9 @@
     }
 
     .filter-tag.active {
-      background: var(--primary);
+      background: var(--blue-gradient);
       color: #fff;
-      border-color: var(--primary);
+      border-color: var(--accent);
     }
 
     .filter-tag:hover {
@@ -159,17 +183,6 @@
       stroke-dasharray: 251.2;
       stroke-dashoffset: 0;
       transition: stroke-dashoffset 0.5s ease-in-out;
-    }
-
-    .slide-in {
-      transform: translateX(-100px);
-      opacity: 0;
-      transition: all 0.6s ease;
-    }
-
-    .slide-in.visible {
-      transform: translateX(0);
-      opacity: 1;
     }
 
     .notification-badge {
@@ -232,7 +245,7 @@
       position: absolute;
       top: -4px;
       right: -4px;
-      background: var(--error);
+      background: var(--danger);
       border-radius: 9999px;
       width: 20px;
       height: 20px;
@@ -243,73 +256,6 @@
       font-weight: bold;
       animation: bounce 2s infinite;
       z-index: 10;
-    }
-
-    .voice-indicator {
-      position: fixed;
-      top: 20px;
-      left: 20px;
-      z-index: 1000;
-      background: rgba(0, 0, 0, 0.8);
-      color: white;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 14px;
-      display: none;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .voice-indicator.listening {
-      background: rgba(239, 68, 68, 0.9);
-      animation: pulse 1s infinite;
-    }
-
-    .voice-indicator.processing {
-      background: rgba(245, 158, 11, 0.9);
-    }
-
-    .voice-feedback {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      right: 20px;
-      z-index: 1000;
-      background: rgba(0, 0, 0, 0.9);
-      color: white;
-      padding: 16px;
-      border-radius: 12px;
-      display: none;
-      backdrop-filter: blur(10px);
-    }
-
-    .voice-commands-help {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0, 0, 0, 0.95);
-      color: white;
-      padding: 24px;
-      border-radius: 16px;
-      max-width: 500px;
-      width: 90%;
-      z-index: 1001;
-      display: none;
-      backdrop-filter: blur(20px);
-    }
-
-    .voice-navigation-focus {
-      outline: 3px solid var(--error) !important;
-      outline-offset: 2px;
-      background: rgba(239, 68, 68, 0.1) !important;
-    }
-
-    .voice-highlight {
-      background: rgba(19, 96, 135, 0.3) !important;
-      border: 2px solid var(--primary) !important;
-      transform: scale(1.02);
-      box-shadow: 0 0 20px rgba(19, 96, 135, 0.5);
     }
 
     .alerts-grid {
@@ -352,224 +298,199 @@
     footer {
       margin-top: auto;
     }
+
+    .focusable:focus {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    @media (prefers-contrast: high) {
+      .glass, .glass-strong {
+        background: rgba(255, 255, 255, 0.9);
+        color: #000;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      html {
+        scroll-behavior: auto !important;
+      }
+    }
   </style>
 </head>
 <body>
-  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:px-4 focus:py-2 focus:bg-white focus:text-blue-600 focus:rounded-md focus:z-50">
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:px-4 focus:py-2 focus:bg-amber-400 focus:text-white focus:rounded-md focus:z-50">
     Skip to main content
   </a>
 
-  <div id="voiceIndicator" class="voice-indicator">
-    <i class="fas fa-microphone"></i>
-    <span id="voiceStatus">Voice Ready</span>
-  </div>
-
-  <div id="voiceFeedback" class="voice-feedback">
-    <div class="flex items-center gap-3">
-      <i class="fas fa-volume-up text-blue-400"></i>
-      <span id="voiceFeedbackText"></span>
-    </div>
-  </div>
-
-  <div id="voiceCommandsHelp" class="voice-commands-help">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="text-xl font-bold text-white">Voice Commands</h3>
-      <button onclick="hideVoiceHelp()" class="text-gray-400 hover:text-white focusable">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-    <div class="space-y-3 text-sm">
-      <div><strong>"navigate to [section]"</strong> - Go to dashboard, alerts, stats, filters</div>
-      <div><strong>"read alerts"</strong> - Read all current alerts</div>
-      <div><strong>"filter by [type]"</strong> - Filter by metro, bus, wheelchair, delays</div>
-      <div><strong>"refresh data"</strong> - Update latest information</div>
-      <div><strong>"emergency help"</strong> - Access emergency assistance</div>
-      <div><strong>"get directions to [location]"</strong> - Navigate to location</div>
-      <div><strong>"bookmark alert [number]"</strong> - Save alert to bookmarks</div>
-      <div><strong>"call assistance"</strong> - Contact transportation help</div>
-      <div><strong>"sort by priority"</strong> - Sort alerts by importance</div>
-      <div><strong>"show notifications"</strong> - View recent notifications</div>
-      <div><strong>"voice help"</strong> - Show this help menu</div>
-      <div><strong>"stop voice"</strong> - Disable voice navigation</div>
-    </div>
-  </div>
-
-  <header class="bg-blue-600/20 backdrop-blur-md sticky top-0 z-50 shadow-lg">
-    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <a href="index.html" class="flex items-center space-x-3 focusable rounded-md" data-aos="fade-right">
-          <div class="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center">
-            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white">
-              <path d="M30,20 L70,20 L80,40 L75,60 L60,80 L40,80 L25,60 L20,40 Z" fill="none" stroke="currentColor" stroke-width="2"/>
-              <circle cx="50" cy="50" r="15" fill="none" stroke="currentColor" stroke-width="3"/>
-              <circle cx="50" cy="50" r="5" fill="currentColor"/>
-              <path d="M65,50 L80,50 M50,65 L50,80 M35,50 L20,50 M50,35 L50,20" stroke="currentColor" stroke-width="3"/>
-            </svg>
+  <header class="fixed top-0 w-full z-50 glass backdrop-blur-xl">
+    <div class="max-w-7xl mx-auto px-4 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <a href="index.html" class="flex items-center space-x-1 focusable rounded-md">
+            <div class="w-20 h-20 rounded-full flex items-center justify-center">
+              <img src="ACCESSIBLECHENNAII.png" alt="Accessible Chennai Logo" class="w-16 h-16 object-cover rounded-full">
+            </div>
+            <h1 class="text-2xl font-bold">Accessible<span class="bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent">Chennai</span></h1>
+          </a>
+        </div>
+        <nav class="hidden md:flex items-center space-x-6">
+          <a href="index.html" class="text-blue-200 hover:text-white focusable transition-all duration-300 hover-light glow-primary" onpointerenter="announceToUser('Home')">Home</a>
+          <a href="navigate.html" class="text-blue-200 hover:text-white focusable transition-all duration-300 hover-light glow-primary" onpointerenter="announceToUser('Navigate')">Navigate</a>
+          <a href="community.html" class="text-blue-200 hover:text-white focusable transition-all duration-300 hover-light glow-primary" onpointerenter="announceToUser('Community')">Community</a>
+          <a href="alerts.html" class="text-white font-semibold bg-gradient-to-r from-blue-500 to-blue-600 px-3 py-2 rounded-md focusable hover-light glow-primary" aria-current="page" onpointerenter="announceToUser('Alerts')">Alerts</a>
+          <a href="settings.html" class="text-blue-200 hover:text-white focusable transition-all duration-300 hover-light glow-primary" onpointerenter="announceToUser('Settings')">Settings</a>
+        </nav>
+        <div class="flex items-center space-x-4">
+          <div class="hidden sm:block text-sm text-blue-200">
+            Last update: <span id="lastUpdate" class="text-blue-400 font-medium">Just now</span>
           </div>
-          <h1 class="text-xl font-bold text-white">Accessible<span class="text-gradient">Chennai</span></h1>
-        </a>
-        <div class="hidden sm:flex items-center space-x-2 glass px-3 py-1 rounded-full">
-          <div class="status-indicator bg-green-400 status-available"></div>
-          <span class="text-sm text-green-400 live-indicator">LIVE</span>
-        </div>
-      </div>
-
-      <nav aria-label="Main navigation" class="hidden md:flex items-center space-x-6" data-aos="fade-left">
-        <a href="index.html" class="text-gray-300 hover:text-white focusable transition-all duration-300">Dashboard</a>
-        <a href="alerts.html" class="text-white font-medium bg-white/10 px-3 py-2 rounded-md focusable" aria-current="page">Alerts</a>
-        <a href="community.html" class="text-gray-300 hover:text-white focusable transition-all duration-300">Community</a>
-        <a href="navigate.html" class="text-gray-300 hover:text-white focusable transition-all duration-300">Navigate</a>
-        <a href="settings.html" class="text-gray-300 hover:text-white focusable transition-all duration-300">Settings</a>
-      </nav>
-
-      <div class="flex items-center space-x-4">
-        <div class="hidden sm:block text-sm text-gray-300">
-          Last update: <span id="lastUpdate" class="text-sky-400 font-medium">Just now</span>
-        </div>
-        <button id="refreshBtn" class="glass p-2 rounded-full focusable hover:bg-white/10" title="Refresh data">
-          <i class="fas fa-sync-alt text-sky-400"></i>
-        </button>
-        <div class="notification-badge-container">
-          <button id="notificationBtn" class="glass p-2 rounded-full focusable hover:bg-white/10 relative" title="View notifications">
-            <i class="fas fa-bell text-amber-400"></i>
+          <button id="refreshBtn" class="glass p-2 rounded-full focusable hover:bg-white/10 hover-light glow-primary" title="Refresh data" onpointerenter="announceToUser('Refresh data')">
+            <i class="fas fa-sync-alt text-blue-400"></i>
           </button>
-          <div id="notificationCount" class="notification-badge-outer">3</div>
+          <div class="notification-badge-container">
+            <button id="notificationBtn" class="glass p-2 rounded-full focusable hover:bg-white/10 hover-light glow-primary" title="View notifications" onpointerenter="announceToUser('View notifications')">
+              <i class="fas fa-bell text-amber-400"></i>
+            </button>
+            <div id="notificationCount" class="notification-badge-outer">3</div>
+          </div>
+          <button id="mobileMenuButton" class="md:hidden glass p-2 rounded-full focusable hover:bg-white/10 hover-light glow-primary" title="Menu" onpointerenter="announceToUser('Menu')">
+            <i class="fas fa-bars text-white"></i>
+          </button>
         </div>
-        <button id="mobileMenuButton" class="md:hidden glass p-2 rounded-full focusable hover:bg-white/10" title="Menu">
-          <i class="fas fa-bars text-white"></i>
-        </button>
       </div>
-
       <div id="mobileMenu" class="mobile-menu md:hidden mt-4">
         <div class="flex flex-col space-y-2 py-2">
-          <a href="index.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-lg hover:bg-white/10 focusable transition-all duration-300">Dashboard</a>
-          <a href="alerts.html" class="text-white px-3 py-2 rounded-lg bg-white/10 focusable" aria-current="page">Alerts</a>
-          <a href="community.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-lg hover:bg-white/10 focusable transition-all duration-300">Community</a>
-          <a href="navigate.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-lg hover:bg-white/10 focusable transition-all duration-300">Navigate</a>
-          <a href="settings.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-lg hover:bg-white/10 focusable transition-all duration-300">Settings</a>
+          <a href="index.html" class="text-blue-200 hover:text-white px-3 py-2 rounded-lg hover:bg-white/10 focusable transition-all duration-300 hover-light glow-primary" onpointerenter="announceToUser('Home')">Home</a>
+          <a href="navigate.html" class="text-blue-200 hover:text-white px-3 py-2 rounded-lg hover:bg-white/10 focusable transition-all duration-300 hover-light glow-primary" onpointerenter="announceToUser('Navigate')">Navigate</a>
+          <a href="community.html" class="text-blue-200 hover:text-white px-3 py-2 rounded-lg hover:bg-white/10 focusable transition-all duration-300 hover-light glow-primary" onpointerenter="announceToUser('Community')">Community</a>
+          <a href="alerts.html" class="text-white px-3 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 focusable hover-light glow-primary" aria-current="page" onpointerenter="announceToUser('Alerts')">Alerts</a>
+          <a href="settings.html" class="text-blue-200 hover:text-white px-3 py-2 rounded-lg hover:bg-white/10 focusable transition-all duration-300 hover-light glow-primary" onpointerenter="announceToUser('Settings')">Settings</a>
         </div>
       </div>
     </div>
   </header>
 
-  <main id="main-content" class="flex-grow">
-    <div class="container mx-auto px-4 py-6">
-      <!-- Updated filter section HTML -->
-<section id="filtersSection" class="glass-dark p-6 rounded-xl mb-8" role="region" aria-label="Smart filters">
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-    <h2 class="text-xl font-bold text-white flex items-center space-x-2">
-      <i class="fas fa-filter text-sky-400" aria-hidden="true"></i>
-      <span>Smart Filters</span>
-    </h2>
-    <span id="filterStatus" class="sr-only" aria-live="polite"></span>
-  </div>
+  <main id="main-content" class="pt-24 pb-12 max-w-7xl mx-auto px-4 flex-grow">
+    <section id="filtersSection" class="parallax-section glass-strong p-8 rounded-3xl mb-8" role="region" aria-label="Smart filters">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+        <h2 class="text-2xl font-bold text-white flex items-center space-x-2">
+          <i class="fas fa-filter text-blue-400" aria-hidden="true"></i>
+          <span class="bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent">Smart Filters</span>
+        </h2>
+        <span id="filterStatus" class="sr-only" aria-live="polite"></span>
+      </div>
 
-  <div class="filter-container mb-4" role="radiogroup" aria-label="Alert filters">
-    <div class="filter-row">
-      <button data-filter="all" class="filter-tag active glass px-3 py-1 rounded-full text-sm font-medium border border-sky-400 text-sky-400 focusable" title="Show all alerts" aria-label="Show all alerts" aria-pressed="true" aria-describedby="count-all">
-        <i class="fas fa-globe mr-1" aria-hidden="true"></i>All <span class="ml-1 bg-sky-400 text-white px-2 py-0.5 rounded-full text-xs" id="count-all">0</span>
-      </button>
-      <button data-filter="metro" class="filter-tag glass px-3 py-1 rounded-full text-sm font-medium border border-gray-600 text-gray-400 hover:border-sky-400 hover:text-sky-400 focusable" title="Show metro alerts" aria-label="Show metro alerts" aria-pressed="false" aria-describedby="count-metro">
-        <i class="fas fa-subway mr-1" aria-hidden="true"></i>Metro <span class="ml-1 bg-gray-600 text-white px-2 py-0.5 rounded-full text-xs" id="count-metro">0</span>
-      </button>
-      <button data-filter="bus" class="filter-tag glass px-3 py-1 rounded-full text-sm font-medium border border-gray-600 text-gray-400 hover:border-sky-400 hover:text-sky-400 focusable" title="Show bus alerts" aria-label="Show bus alerts" aria-pressed="false" aria-describedby="count-bus">
-        <i class="fas fa-bus mr-1" aria-hidden="true"></i>Bus <span class="ml-1 bg-gray-600 text-white px-2 py-0.5 rounded-full text-xs" id="count-bus">0</span>
-      </button>
-      <button data-filter="wheelchair" class="filter-tag glass px-3 py-1 rounded-full text-sm font-medium border border-gray-600 text-gray-400 hover:border-sky-400 hover:text-sky-400 focusable" title="Show wheelchair accessible alerts" aria-label="Show wheelchair accessible alerts" aria-pressed="false" aria-describedby="count-wheelchair">
-        <i class="fas fa-wheelchair mr-1" aria-hidden="true"></i>Access <span class="ml-1 bg-gray-600 text-white px-2 py-0.5 rounded-full text-xs" id="count-wheelchair">0</span>
-      </button>
-      <button data-filter="delay" class="filter-tag glass px-3 py-1 rounded-full text-sm font-medium border border-gray-600 text-gray-400 hover:border-sky-400 hover:text-sky-400 focusable" title="Show delay alerts" aria-label="Show delay alerts" aria-pressed="false" aria-describedby="count-delay">
-        <i class="fas fa-exclamation-triangle mr-1" aria-hidden="true"></i>Delay <span class="ml-1 bg-gray-600 text-white px-2 py-0.5 rounded-full text-xs" id="count-delay">0</span>
-      </button>
-    </div>
-  </div>
-
-  <div id="advancedFilters" class="hidden border-t border-white/20 pt-4" role="group" aria-label="Advanced filters">
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-      <button data-filter="audio" class="filter-tag glass px-3 py-1 rounded-full text-sm hover:bg-white/10 focusable" title="Audio support filter" aria-label="Filter by audio support" aria-pressed="false">
-        <i class="fas fa-volume-up mr-1" aria-hidden="true"></i>Audio
-      </button>
-      <button data-filter="visual" class="filter-tag glass px-3 py-1 rounded-full text-sm hover:bg-white/10 focusable" title="Visual aid filter" aria-label="Filter by visual aid" aria-pressed="false">
-        <i class="fas fa-eye mr-1" aria-hidden="true"></i>Visual
-      </button>
-      <button data-filter="tactile" class="filter-tag glass px-3 py-1 rounded-full text-sm hover:bg-white/10 focusable" title="Tactile guide filter" aria-label="Filter by tactile guide" aria-pressed="false">
-        <i class="fas fa-hand-paper mr-1" aria-hidden="true"></i>Tactile
-      </button>
-      <button data-filter="emergency" class="filter-tag glass px-3 py-1 rounded-full text-sm hover:bg-white/10 focusable" title="Emergency filter" aria-label="Filter by emergency" aria-pressed="false">
-        <i class="fas fa-exclamation-circle mr-1" aria-hidden="true"></i>Emergency
-      </button>
-    </div>
-  </div>
-
-  <button id="showAdvanced" class="mt-4 text-sky-400 text-sm flex items-center space-x-1 hover:text-sky-300 focusable" title="Toggle advanced filters" aria-label="Toggle advanced filters">
-    <i class="fas fa-chevron-down" aria-hidden="true"></i>
-    <span>Advanced Filters</span>
-  </button>
-</section>
-
-      <section class="space-y-6" data-aos="fade-up">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <h2 id="alertsTitle" class="text-2xl font-bold text-white flex items-center space-x-2">
-            <i class="fas fa-broadcast-tower text-sky-400 floating" aria-hidden="true"></i>
-            <span>Live Feed</span>
-          </h2>
-          <div class="flex items-center space-x-3">
-            <select id="sortBy" class="glass bg-transparent text-white px-4 py-2 rounded-lg border border-white/20 focusable" title="Sort alerts" aria-label="Sort alerts">
-              <option value="time">Latest First</option>
-              <option value="priority">High Priority</option>
-              <option value="distance">Nearest</option>
-              <option value="relevance">Most Relevant</option>
-            </select>
-          </div>
+      <div class="filter-container mb-4" role="radiogroup" aria-label="Alert filters">
+        <div class="filter-row">
+          <button data-filter="all" class="filter-tag active glass px-3 py-1 rounded-2xl text-sm font-medium border border-blue-400 text-blue-400 focusable hover-light glow-primary" title="Show all alerts" aria-label="Show all alerts" aria-pressed="true" aria-describedby="count-all" onpointerenter="announceToUser('Show all alerts')">
+            <i class="fas fa-globe mr-1" aria-hidden="true"></i>All <span class="ml-1 bg-blue-400 text-white px-2 py-0.5 rounded-full text-xs" id="count-all">0</span>
+          </button>
+          <button data-filter="metro" class="filter-tag glass px-3 py-1 rounded-2xl text-sm font-medium border border-gray-600 text-blue-200 hover:border-blue-400 hover:text-blue-400 focusable hover-light glow-primary" title="Show metro alerts" aria-label="Show metro alerts" aria-pressed="false" aria-describedby="count-metro" onpointerenter="announceToUser('Show metro alerts')">
+            <i class="fas fa-subway mr-1" aria-hidden="true"></i>Metro <span class="ml-1 bg-gray-600 text-white px-2 py-0.5 rounded-full text-xs" id="count-metro">0</span>
+          </button>
+          <button data-filter="bus" class="filter-tag glass px-3 py-1 rounded-2xl text-sm font-medium border border-gray-600 text-blue-200 hover:border-blue-400 hover:text-blue-400 focusable hover-light glow-primary" title="Show bus alerts" aria-label="Show bus alerts" aria-pressed="false" aria-describedby="count-bus" onpointerenter="announceToUser('Show bus alerts')">
+            <i class="fas fa-bus mr-1" aria-hidden="true"></i>Bus <span class="ml-1 bg-gray-600 text-white px-2 py-0.5 rounded-full text-xs" id="count-bus">0</span>
+          </button>
+          <button data-filter="wheelchair" class="filter-tag glass px-3 py-1 rounded-2xl text-sm font-medium border border-gray-600 text-blue-200 hover:border-blue-400 hover:text-blue-400 focusable hover-light glow-primary" title="Show wheelchair accessible alerts" aria-label="Show wheelchair accessible alerts" aria-pressed="false" aria-describedby="count-wheelchair" onpointerenter="announceToUser('Show wheelchair accessible alerts')">
+            <i class="fas fa-wheelchair mr-1" aria-hidden="true"></i>Access <span class="ml-1 bg-gray-600 text-white px-2 py-0.5 rounded-full text-xs" id="count-wheelchair">0</span>
+          </button>
+          <button data-filter="delay" class="filter-tag glass px-3 py-1 rounded-2xl text-sm font-medium border border-gray-600 text-blue-200 hover:border-blue-400 hover:text-blue-400 focusable hover-light glow-primary" title="Show delay alerts" aria-label="Show delay alerts" aria-pressed="false" aria-describedby="count-delay" onpointerenter="announceToUser('Show delay alerts')">
+            <i class="fas fa-exclamation-triangle mr-1" aria-hidden="true"></i>Delay <span class="ml-1 bg-gray-600 text-white px-2 py-0.5 rounded-full text-xs" id="count-delay">0</span>
+          </button>
         </div>
+      </div>
 
-        <div id="alertsContainer" class="alerts-grid" role="main" aria-label="Transportation alerts" aria-live="polite"></div>
-
-        <div id="noAlertsMessage" class="hidden text-center py-12">
-          <div class="glass-dark p-8 rounded-xl max-w-md mx-auto">
-            <i class="fas fa-search text-gray-400 text-4xl mb-4" aria-hidden="true"></i>
-            <h3 class="text-xl font-bold text-gray-300 mb-2">No Alerts Found</h3>
-            <p class="text-gray-400">Try adjusting your filters or check back later for updates.</p>
-          </div>
+      <div id="advancedFilters" class="hidden border-t border-white/20 pt-4" role="group" aria-label="Advanced filters">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <button data-filter="audio" class="filter-tag glass px-3 py-1 rounded-2xl text-sm hover:bg-white/10 focusable hover-light glow-primary" title="Audio support filter" aria-label="Filter by audio support" aria-pressed="false" onpointerenter="announceToUser('Filter by audio support')">
+            <i class="fas fa-volume-up mr-1" aria-hidden="true"></i>Audio
+          </button>
+          <button data-filter="visual" class="filter-tag glass px-3 py-1 rounded-2xl text-sm hover:bg-white/10 focusable hover-light glow-primary" title="Visual aid filter" aria-label="Filter by visual aid" aria-pressed="false" onpointerenter="announceToUser('Filter by visual aid')">
+            <i class="fas fa-eye mr-1" aria-hidden="true"></i>Visual
+          </button>
+          <button data-filter="tactile" class="filter-tag glass px-3 py-1 rounded-2xl text-sm hover:bg-white/10 focusable hover-light glow-primary" title="Tactile guide filter" aria-label="Filter by tactile guide" aria-pressed="false" onpointerenter="announceToUser('Filter by tactile guide')">
+            <i class="fas fa-hand-paper mr-1" aria-hidden="true"></i>Tactile
+          </button>
+          <button data-filter="emergency" class="filter-tag glass px-3 py-1 rounded-2xl text-sm hover:bg-white/10 focusable hover-light glow-primary" title="Emergency filter" aria-label="Filter by emergency" aria-pressed="false" onpointerenter="announceToUser('Filter by emergency')">
+            <i class="fas fa-exclamation-circle mr-1" aria-hidden="true"></i>Emergency
+          </button>
         </div>
-      </section>
-    </div>
+      </div>
+
+      <button id="showAdvanced" class="mt-4 text-blue-400 text-sm flex items-center space-x-1 hover:text-blue-300 focusable hover-light glow-primary" title="Toggle advanced filters" aria-label="Toggle advanced filters" onpointerenter="announceToUser('Toggle advanced filters')">
+        <i class="fas fa-chevron-down" aria-hidden="true"></i>
+        <span>Advanced Filters</span>
+      </button>
+    </section>
+
+    <section class="parallax-section space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <h2 id="alertsTitle" class="text-3xl font-bold text-white flex items-center space-x-2">
+          <i class="fas fa-broadcast-tower text-blue-400" aria-hidden="true"></i>
+          <span class="bg-gradient-to-r from-blue-300 to-cyan-300 bg-clip-text text-transparent">Live Feed</span>
+        </h2>
+        <div class="flex items-center space-x-3">
+          <select id="sortBy" class="glass bg-transparent text-white px-4 py-2 rounded-2xl border border-white/20 focusable" title="Sort alerts" aria-label="Sort alerts" onpointerenter="announceToUser('Sort alerts')">
+            <option value="time">Latest First</option>
+            <option value="priority">High Priority</option>
+            <option value="distance">Nearest</option>
+            <option value="relevance">Most Relevant</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="alertsContainer" class="alerts-grid" role="main" aria-label="Transportation alerts" aria-live="polite"></div>
+
+      <div id="noAlertsMessage" class="hidden text-center py-12">
+        <div class="glass-strong p-8 rounded-3xl max-w-md mx-auto">
+          <i class="fas fa-search text-blue-200 text-4xl mb-4" aria-hidden="true"></i>
+          <h3 class="text-xl font-bold text-blue-200 mb-2">No Alerts Found</h3>
+          <p class="text-blue-200">Try adjusting your filters or check back later for updates.</p>
+        </div>
+      </div>
+    </section>
   </main>
 
   <div id="modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 hidden modal-backdrop">
-    <div class="glass-dark p-6 rounded-xl max-w-md w-full mx-4 modal-content">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-xl font-bold text-white" id="modalTitle">Modal Title</h3>
-        <button id="closeModal" class="text-gray-400 hover:text-white focusable" aria-label="Close modal">
+    <div class="glass-strong p-8 rounded-3xl max-w-md w-full mx-4 modal-content">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="text-2xl font-bold text-white" id="modalTitle">Modal Title</h3>
+        <button id="closeModal" class="text-blue-200 hover:text-white focusable hover-light glow-primary" aria-label="Close modal" onpointerenter="announceToUser('Close modal')">
           <i class="fas fa-times"></i>
         </button>
       </div>
-      <div class="text-gray-300 mb-6" id="modalContent">Modal content</div>
+      <div class="text-blue-200 mb-6" id="modalContent">Modal content</div>
       <div class="flex justify-end space-x-3">
-        <button id="modalCancel" class="glass px-4 py-2 rounded-lg hover:bg-white/10 focusable" aria-label="Cancel">Cancel</button>
-        <button id="modalConfirm" class="bg-gradient-to-r from-blue-400 to-cyan-400 text-white px-4 py-2 rounded-lg focusable" aria-label="Confirm">Confirm</button>
+        <button id="modalCancel" class="glass px-4 py-2 rounded-2xl hover:bg-white/10 focusable hover-light glow-primary" aria-label="Cancel" onpointerenter="announceToUser('Cancel')">Cancel</button>
+        <button id="modalConfirm" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-2xl focusable hover-light glow-primary" aria-label="Confirm" onpointerenter="announceToUser('Confirm')">Confirm</button>
       </div>
     </div>
   </div>
 
   <div id="notificationContainer" class="fixed top-20 right-4 z-50 space-y-2" aria-live="polite"></div>
 
-  <footer class="bg-blue-600/20 backdrop-blur-md text-white py-12">
-    <div class="container mx-auto px-4">
+  <footer class="glass-strong text-white py-12">
+    <div class="max-w-7xl mx-auto px-4">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
         <div>
           <h3 class="text-lg font-semibold mb-4">Accessible Chennai</h3>
-          <p class="text-white/80">
+          <p class="text-blue-200">
             Empowering inclusive mobility through technology and community collaboration.
           </p>
           <div class="flex space-x-4 mt-4">
-            <a href="#" class="text-white/80 hover:text-white focusable transition-all duration-300" aria-label="Facebook">
+            <a href="#" class="text-blue-200 hover:text-white focusable transition-all duration-300" aria-label="Facebook" onpointerenter="announceToUser('Facebook')">
               <i class="fab fa-facebook-f"></i>
             </a>
-            <a href="#" class="text-white/80 hover:text-white focusable transition-all duration-300" aria-label="Twitter">
+            <a href="#" class="text-blue-200 hover:text-white focusable transition-all duration-300" aria-label="Twitter" onpointerenter="announceToUser('Twitter')">
               <i class="fab fa-twitter"></i>
             </a>
-            <a href="#" class="text-white/80 hover:text-white focusable transition-all duration-300" aria-label="Instagram">
+            <a href="#" class="text-blue-200 hover:text-white focusable transition-all duration-300" aria-label="Instagram" onpointerenter="announceToUser('Instagram')">
               <i class="fab fa-instagram"></i>
             </a>
           </div>
@@ -577,331 +498,68 @@
         <div>
           <h4 class="text-lg font-semibold mb-4">Quick Links</h4>
           <ul class="space-y-2">
-            <li><a href="#" class="text-white/80 hover:text-white focusable transition-all duration-300">Developer Guide</a></li>
-            <li><a href="#" class="text-white/80 hover:text-white focusable transition-all duration-300">Privacy Policy</a></li>
-            <li><a href="#" class="text-white/80 hover:text-white focusable transition-all duration-300">Terms of Service</a></li>
+            <li><a href="#" class="text-blue-200 hover:text-white focusable transition-all duration-300" onpointerenter="announceToUser('Developer Guide')">Developer Guide</a></li>
+            <li><a href="#" class="text-blue-200 hover:text-white focusable transition-all duration-300" onpointerenter="announceToUser('Privacy Policy')">Privacy Policy</a></li>
+            <li><a href="#" class="text-blue-200 hover:text-white focusable transition-all duration-300" onpointerenter="announceToUser('Terms of Service')">Terms of Service</a></li>
           </ul>
         </div>
         <div>
           <h4 class="text-lg font-semibold mb-4">Resources</h4>
           <ul class="space-y-2">
-            <li><a href="#" class="text-white/80 hover:text-white focusable transition-all duration-300">API Documentation</a></li>
-            <li><a href="#" class="text-white/80 hover:text-white focusable transition-all duration-300">Accessibility Guidelines</a></li>
-            <li><a href="#" class="text-white/80 hover:text-white focusable transition-all duration-300">Transit Maps</a></li>
+            <li><a href="#" class="text-blue-200 hover:text-white focusable transition-all duration-300" onpointerenter="announceToUser('API Documentation')">API Documentation</a></li>
+            <li><a href="#" class="text-blue-200 hover:text-white focusable transition-all duration-300" onpointerenter="announceToUser('Accessibility Guidelines')">Accessibility Guidelines</a></li>
+            <li><a href="#" class="text-blue-200 hover:text-white focusable transition-all duration-300" onpointerenter="announceToUser('Transit Maps')">Transit Maps</a></li>
           </ul>
         </div>
         <div>
           <h4 class="text-lg font-semibold mb-4">Contact</h4>
-          <address class="not-italic text-white/80 space-y-2">
+          <address class="not-italic text-blue-200 space-y-2">
             <p>123 Accessibility Lane</p>
             <p>Chennai, Tamil Nadu 600001</p>
-            <p>Email: <a href="mailto:info@accessiblechennai.in" class="hover:text-white focusable transition-all duration-300">info@accessiblechennai.in</a></p>
-            <p>Phone: <a href="tel:+914412345678" class="hover:text-white focusable transition-all duration-300">+91 44 1234 5678</a></p>
+            <p>Email: <a href="mailto:info@accessiblechennai.in" class="hover:text-white focusable transition-all duration-300" onpointerenter="announceToUser('Email info')">info@accessiblechennai.in</a></p>
+            <p>Phone: <a href="tel:+914412345678" class="hover:text-white focusable transition-all duration-300" onpointerenter="announceToUser('Phone number')">+91 44 1234 5678</a></p>
           </address>
         </div>
       </div>
       <div class="border-t border-white/20 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-        <p class="text-white/80 mb-4 md:mb-0">
+        <p class="text-blue-200 mb-4 md:mb-0">
           &copy; 2025 Accessible Chennai. All rights reserved.
         </p>
         <div class="flex space-x-4">
-          <a href="#" class="text-white/80 hover:text-white focusable transition-all duration-300">Accessibility Statement</a>
-          <a href="#" class="text-white/80 hover:text-white focusable transition-all duration-300">Feedback</a>
+          <a href="#" class="text-blue-200 hover:text-white focusable transition-all duration-300" onpointerenter="announceToUser('Accessibility Statement')">Accessibility Statement</a>
+          <a href="#" class="text-blue-200 hover:text-white focusable transition-all duration-300" onpointerenter="announceToUser('Feedback')">Feedback</a>
         </div>
       </div>
     </div>
   </footer>
 
-  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
   <script>
-    AOS.init({
-      duration: 800,
-      easing: 'ease-in-out',
-      once: true,
-      mirror: false
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', () => {
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, observerOptions);
+
+      document.querySelectorAll('.parallax-section').forEach(el => {
+        observer.observe(el);
+      });
+
+      renderAlerts();
+      startRealTimeUpdates();
+      updateFilterCounts();
+      updateNotificationCount();
     });
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      document.documentElement.style.scrollBehavior = 'auto';
-      document.querySelectorAll('[data-aos]').forEach(el => {
-        el.removeAttribute('data-aos');
-      });
-    }
-
-    let isVoiceEnabled = false;
-    let recognition = null;
-    let synth = window.speechSynthesis;
-    let currentFocusIndex = 0;
-    let focusableElements = [];
-
-    function enableVoiceNavigation() {
-      if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-        showModal(
-          'Voice Navigation Unavailable',
-          'Voice navigation is not supported in this browser.',
-          'OK',
-          () => {}
-        );
-        return;
-      }
-
-      isVoiceEnabled = true;
-      document.getElementById('voiceIndicator').style.display = 'flex';
-      updateVoiceIndicator('ready', 'Voice Ready');
-
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      recognition = new SpeechRecognition();
-      recognition.continuous = true;
-      recognition.interimResults = false;
-      recognition.lang = 'en-US';
-
-      recognition.onstart = () => {
-        updateVoiceIndicator('listening', 'Listening...');
-      };
-
-      recognition.onresult = (event) => {
-        const command = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
-        updateVoiceIndicator('processing', 'Processing...');
-        processVoiceCommand(command);
-      };
-
-      recognition.onerror = (event) => {
-        updateVoiceIndicator('error', 'Voice Error');
-        setTimeout(() => {
-          if (isVoiceEnabled) {
-            recognition.start();
-            updateVoiceIndicator('ready', 'Voice Ready');
-          }
-        }, 2000);
-      };
-
-      recognition.onend = () => {
-        if (isVoiceEnabled) {
-          setTimeout(() => {
-            recognition.start();
-            updateVoiceIndicator('ready', 'Voice Ready');
-          }, 1000);
-        }
-      };
-
-      recognition.start();
-      updateFocusableElements();
-      speak('Voice navigation enabled for Accessible Chennai Alerts. Say "voice help" for available commands.');
-      document.addEventListener('keydown', handleVoiceKeyboard);
-    }
-
-    function disableVoiceNavigation() {
-      isVoiceEnabled = false;
-      document.getElementById('voiceIndicator').style.display = 'none';
-      if (recognition) {
-        recognition.stop();
-        recognition = null;
-      }
-      clearVoiceHighlights();
-      document.removeEventListener('keydown', handleVoiceKeyboard);
-      speak('Voice navigation disabled.');
-    }
-
-    function updateVoiceIndicator(state, text) {
-      const indicator = document.getElementById('voiceIndicator');
-      const status = document.getElementById('voiceStatus');
-      indicator.className = `voice-indicator ${state}`;
-      status.textContent = text;
-    }
-
-    function speak(text, priority = false, callback = null) {
-      if (!isVoiceEnabled && !priority) return;
-      if (synth.speaking) {
-        synth.cancel();
-      }
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.9;
-      utterance.pitch = 1;
-      utterance.volume = 0.8;
-      if (callback) {
-        utterance.onend = callback;
-      }
-      showVoiceFeedback(text);
-      synth.speak(utterance);
-    }
-
-    function showVoiceFeedback(text) {
-      const feedback = document.getElementById('voiceFeedback');
-      const feedbackText = document.getElementById('voiceFeedbackText');
-      feedbackText.textContent = text;
-      feedback.style.display = 'block';
-      setTimeout(() => {
-        feedback.style.display = 'none';
-      }, 3000);
-    }
-
-    function processVoiceCommand(command) {
-      console.log('Voice command:', command);
-      if (command.includes('navigate to') || command.includes('go to')) {
-        if (command.includes('alerts') || command.includes('feed')) {
-          navigateToSection('alertsContainer', 'Navigating to alerts feed');
-        } else if (command.includes('filters')) {
-          navigateToSection('filtersSection', 'Navigating to filters section');
-        }
-        return;
-      }
-      if (command.includes('read alerts') || command.includes('list alerts')) {
-        readCurrentAlerts();
-        return;
-      }
-      if (command.includes('filter by') || command.includes('show only')) {
-        if (command.includes('metro')) {
-          activateFilter('metro', 'Filtering by metro alerts');
-        } else if (command.includes('bus')) {
-          activateFilter('bus', 'Filtering by bus alerts');
-        } else if (command.includes('wheelchair')) {
-          activateFilter('wheelchair', 'Filtering by wheelchair accessible services');
-        } else if (command.includes('delay')) {
-          activateFilter('delay', 'Filtering by service delays');
-        } else if (command.includes('all')) {
-          activateFilter('all', 'Showing all alerts');
-        }
-        return;
-      }
-      if (command.includes('refresh') || command.includes('update')) {
-        refreshData();
-        return;
-      }
-      if (command.includes('emergency') || command.includes('help')) {
-        triggerEmergencyAssistance();
-        return;
-      }
-      if (command.includes('sort by')) {
-        if (command.includes('priority')) {
-          sortAlerts('priority', 'Sorting alerts by priority');
-        } else if (command.includes('time') || command.includes('latest')) {
-          sortAlerts('time', 'Sorting alerts by time');
-        } else if (command.includes('distance') || command.includes('nearest')) {
-          sortAlerts('distance', 'Sorting alerts by distance');
-        }
-        return;
-      }
-      if (command.includes('show notifications') || command.includes('view notifications')) {
-        showNotifications();
-        return;
-      }
-      if (command.includes('voice help') || command.includes('help me') || command.includes('commands')) {
-        showVoiceHelp();
-        return;
-      }
-      if (command.includes('stop voice') || command.includes('disable voice')) {
-        disableVoiceNavigation();
-        return;
-      }
-      speak('Command not recognized. Say "voice help" for available commands.');
-    }
-
-    function navigateToSection(sectionId, message) {
-      const section = document.getElementById(sectionId);
-      if (section) {
-        section.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        highlightElement(section);
-        speak(message);
-      }
-    }
-
-    function readCurrentAlerts() {
-      const alertCards = document.querySelectorAll('.alert-card:not(.hidden)');
-      if (alertCards.length === 0) {
-        speak('No alerts currently available.');
-        return;
-      }
-      speak(`Reading ${alertCards.length} alerts.`);
-      alertCards.forEach((card, index) => {
-        setTimeout(() => {
-          const title = card.querySelector('h3').textContent;
-          const location = card.querySelector('.text-gray-400').textContent.replace('📍', '').trim();
-          const message = card.querySelector('.text-gray-300').textContent;
-          const status = card.querySelector('.capitalize').textContent;
-          const alertText = `Alert ${index + 1}: ${title} at ${location}. Status: ${status}. ${message}`;
-          speak(alertText);
-          highlightElement(card);
-        }, index * 4000);
-      });
-    }
-
-    function activateFilter(filterType, message) {
-      const filterBtn = document.querySelector(`[data-filter="${filterType}"]`);
-      if (filterBtn) {
-        filterBtn.click();
-        speak(message);
-        highlightElement(filterBtn);
-      }
-    }
-
-    function refreshData() {
-      document.getElementById('refreshBtn').click();
-      speak('Refreshing transportation data...');
-    }
-
-    function triggerEmergencyAssistance() {
-      speak('Opening emergency assistance options.');
-      aiAction('emergency');
-    }
-
-    function sortAlerts(sortType, message) {
-      const sortSelect = document.getElementById('sortBy');
-      sortSelect.value = sortType;
-      sortSelect.dispatchEvent(new Event('change'));
-      speak(message);
-    }
-
-    function showNotifications() {
-      document.getElementById('notificationBtn').click();
-      speak('Showing recent notifications.');
-    }
-
-    function showVoiceHelp() {
-      const helpModal = document.getElementById('voiceCommandsHelp');
-      helpModal.style.display = 'block';
-      speak('Showing voice commands help. Press escape to close.');
-    }
-
-    function hideVoiceHelp() {
-      document.getElementById('voiceCommandsHelp').style.display = 'none';
-    }
-
-    function highlightElement(element) {
-      element.classList.add('voice-highlight');
-      setTimeout(() => {
-        element.classList.remove('voice-highlight');
-      }, 3000);
-    }
-
-    function clearVoiceHighlights() {
-      document.querySelectorAll('.voice-highlight').forEach(el => {
-        el.classList.remove('voice-highlight');
-      });
-    }
-
-    function updateFocusableElements() {
-      focusableElements = Array.from(document.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"]), .alert-card'
-      )).filter(el => !el.disabled && !el.hidden);
-    }
-
-    function handleVoiceKeyboard(event) {
-      if (!isVoiceEnabled) return;
-      switch(event.key) {
-        case 'Escape':
-          hideVoiceHelp();
-          break;
-        case 'F1':
-          event.preventDefault();
-          showVoiceHelp();
-          break;
-        case 'F2':
-          event.preventDefault();
-          readCurrentAlerts();
-          break;
-      }
-    }
-
+    // Alerts Data
     const alertsData = [
       {
         id: 1,
@@ -1008,7 +666,6 @@
     const alertsContainer = document.getElementById('alertsContainer');
     const noAlertsMessage = document.getElementById('noAlertsMessage');
     const filterBtns = document.querySelectorAll('.filter-tag');
-    const resetFiltersBtn = document.getElementById('resetFilters');
     const showAdvanced = document.getElementById('showAdvanced');
     const advancedFilters = document.getElementById('advancedFilters');
     const sortBy = document.getElementById('sortBy');
@@ -1052,19 +709,13 @@
       }
     ];
 
-    document.addEventListener('DOMContentLoaded', () => {
-      renderAlerts();
-      startRealTimeUpdates();
-      updateFilterCounts();
-      updateNotificationCount();
-    });
-
     mobileMenuButton.addEventListener('click', () => {
       mobileMenu.classList.toggle('open');
       mobileMenuButton.innerHTML = mobileMenu.classList.contains('open') ?
         '<i class="fas fa-times text-white"></i>' :
         '<i class="fas fa-bars text-white"></i>';
       mobileMenuButton.setAttribute('aria-expanded', mobileMenu.classList.contains('open'));
+      announceToUser(mobileMenu.classList.contains('open') ? 'Menu opened' : 'Menu closed');
     });
 
     function renderAlerts(filter = 'all', sort = 'time') {
@@ -1097,9 +748,7 @@
       if (filteredAlerts.length === 0) {
         noAlertsMessage.classList.remove('hidden');
         alertsContainer.classList.add('hidden');
-        if (isVoiceEnabled) {
-          speak('No alerts found matching your criteria.');
-        }
+        announceToUser('No alerts found matching your criteria.');
         return;
       }
 
@@ -1118,19 +767,15 @@
       });
 
       setTimeout(() => {
-        document.querySelectorAll('.slide-in').forEach(card => {
+        document.querySelectorAll('.alert-card').forEach(card => {
           card.classList.add('visible');
         });
       }, 100);
-
-      if (isVoiceEnabled) {
-        updateFocusableElements();
-      }
     }
 
     function createAlertCard(alert, index) {
       const card = document.createElement('div');
-      card.className = 'alert-card glass-dark p-6 rounded-xl slide-in flex flex-col';
+      card.className = 'alert-card glass-strong p-6 rounded-3xl flex flex-col';
       card.style.animationDelay = `${index * 0.1}s`;
       card.setAttribute('role', 'article');
       card.setAttribute('aria-label', `Alert: ${alert.title} at ${alert.location}`);
@@ -1140,14 +785,14 @@
         available: 'text-green-400 border-green-400',
         delayed: 'text-amber-400 border-amber-400',
         unavailable: 'text-red-400 border-red-400',
-        info: 'text-sky-400 border-sky-400'
+        info: 'text-blue-400 border-blue-400'
       };
 
       const statusBgColors = {
         available: 'bg-green-400',
         delayed: 'bg-amber-400',
         unavailable: 'bg-red-400',
-        info: 'bg-sky-400'
+        info: 'bg-blue-400'
       };
 
       const typeIcons = {
@@ -1163,66 +808,66 @@
       };
 
       card.innerHTML = `
-    <div class="flex items-start justify-between mb-2">
-      <div class="flex items-center space-x-3 flex-1">
-        <div class="w-10 h-10 bg-gradient-to-r ${typeColors[alert.type]} rounded-xl flex items-center justify-center">
-          <i class="${typeIcons[alert.type]} text-white text-lg" aria-hidden="true"></i>
-        </div>
-        <div class="flex-1 min-w-0">
-          <h3 class="text-lg font-bold text-white">${alert.title}</h3>
-          <p class="text-gray-400 text-sm flex items-center">
-            <i class="fas fa-map-marker-alt text-xs mr-1" aria-hidden="true"></i>
-            <span>${alert.location}</span>
-          </p>
-        </div>
-      </div>
-      <div class="flex items-center space-x-2 flex-shrink-0">
-        <div class="status-indicator ${statusBgColors[alert.status]} status-${alert.status}" aria-label="Status: ${alert.status}"></div>
-        <span class="text-sm font-medium ${statusColors[alert.status]} capitalize">${alert.status}</span>
-      </div>
-    </div>
-
-    <p class="text-gray-300 mb-3 leading-relaxed flex-grow">${alert.message}</p>
-
-    ${alert.countdown ? `
-      <div class="countdown-container">
-        <div class="relative w-12 h-12 flex-shrink-0">
-          <svg class="progress-ring w-12 h-12" viewBox="0 0 80 80" aria-hidden="true">
-            <circle cx="40" cy="40" r="36" stroke="rgba(19, 96, 135, 0.2)" stroke-width="8" fill="none"/>
-            <circle id="countdown-${alert.id}" cx="40" cy="40" r="36" stroke="#136087" stroke-width="8" fill="none" class="progress-ring-circle"/>
-          </svg>
-          <div class="absolute inset-0 flex items-center justify-center">
-            <span id="time-${alert.id}" class="text-lg font-bold text-sky-400 countdown" aria-label="Arriving in ${alert.countdown} minutes">${alert.countdown}</span>
+        <div class="flex items-start justify-between mb-4">
+          <div class="flex items-center space-x-3 flex-1">
+            <div class="w-10 h-10 bg-gradient-to-r ${typeColors[alert.type]} rounded-xl flex items-center justify-center">
+              <i class="${typeIcons[alert.type]} text-white text-lg" aria-hidden="true"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="text-lg font-bold text-white">${alert.title}</h3>
+              <p class="text-blue-200 text-sm flex items-center">
+                <i class="fas fa-map-marker-alt text-xs mr-1" aria-hidden="true"></i>
+                <span>${alert.location}</span>
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2 flex-shrink-0">
+            <div class="status-indicator ${statusBgColors[alert.status]} status-${alert.status}" aria-label="Status: ${alert.status}"></div>
+            <span class="text-sm font-medium ${statusColors[alert.status]} capitalize">${alert.status}</span>
           </div>
         </div>
-        <div class="countdown-text">
-          <p class="text-sky-400 font-medium text-sm">Arriving in</p>
-          <p class="text-gray-400 text-xs">minutes</p>
+
+        <p class="text-blue-200 mb-3 leading-relaxed flex-grow">${alert.message}</p>
+
+        ${alert.countdown ? `
+          <div class="countdown-container flex items-center space-x-3">
+            <div class="relative w-12 h-12 flex-shrink-0">
+              <svg class="progress-ring w-12 h-12" viewBox="0 0 80 80" aria-hidden="true">
+                <circle cx="40" cy="40" r="36" stroke="rgba(19, 96, 135, 0.2)" stroke-width="8" fill="none"/>
+                <circle id="countdown-${alert.id}" cx="40" cy="40" r="36" stroke="#136087" stroke-width="8" fill="none" class="progress-ring-circle"/>
+              </svg>
+              <div class="absolute inset-0 flex items-center justify-center">
+                <span id="time-${alert.id}" class="text-lg font-bold text-blue-400 countdown" aria-label="Arriving in ${alert.countdown} minutes">${alert.countdown}</span>
+              </div>
+            </div>
+            <div class="countdown-text">
+              <p class="text-blue-400 font-medium text-sm">Arriving in</p>
+              <p class="text-blue-200 text-xs">minutes</p>
+            </div>
+          </div>
+        ` : ''}
+
+        <div class="flex flex-wrap gap-2 mt-3" role="list" aria-label="Alert features">
+          ${alert.tags.map(tag => `
+            <span class="glass px-2 py-1 rounded-full text-xs font-medium text-blue-400 border border-blue-400/30" role="listitem">
+              ${getTagIcon(tag)} ${tag}
+            </span>
+          `).join('')}
         </div>
-      </div>
-    ` : ''}
 
-    <div class="flex flex-wrap gap-2 mt-3" role="list" aria-label="Alert features">
-      ${alert.tags.map(tag => `
-        <span class="glass px-2 py-1 rounded-full text-xs font-medium text-sky-400 border border-sky-400/30" role="listitem">
-          ${getTagIcon(tag)} ${tag}
-        </span>
-      `).join('')}
-    </div>
+        <div class="flex items-center justify-between pt-3 border-t border-white/20 mt-3">
+          <div class="flex items-center space-x-4 flex-1 min-w-0">
+            <p class="text-blue-200 text-xs flex items-center space-x-1">
+              <i class="far fa-clock" aria-hidden="true"></i>
+              <span>${getTimeAgo(alert.time)}</span>
+            </p>
+            <span class="px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(alert.priority)}">${alert.priority.toUpperCase()}</span>
+          </div>
+        </div>
+      `;
 
-    <div class="flex items-center justify-between pt-3 border-t border-white/20 mt-3">
-      <div class="flex items-center space-x-4 flex-1 min-w-0">
-        <p class="text-gray-400 text-xs flex items-center space-x-1">
-          <i class="far fa-clock" aria-hidden="true"></i>
-          <span>${getTimeAgo(alert.time)}</span>
-        </p>
-        <span class="px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(alert.priority)}">${alert.priority.toUpperCase()}</span>
-      </div>
-    </div>
-  `;
-
-  return card;
-}
+      return card;
+    }
 
     function getTagIcon(tag) {
       const icons = {
@@ -1254,23 +899,11 @@
       return `${Math.floor(diff / 60)}h ago`;
     }
 
-    function toggleVoiceNavigation() {
-      if (isVoiceEnabled) {
-        disableVoiceNavigation();
-        showNotification('Voice Disabled', 'Voice navigation has been turned off.', 'info');
-      } else {
-        enableVoiceNavigation();
-        showNotification('Voice Enabled', 'Voice navigation is now active.', 'success');
-      }
-    }
-
-    window.toggleVoiceNavigation = toggleVoiceNavigation;
-
     function getPriorityColor(priority) {
       const colors = {
         high: 'bg-red-500/20 text-red-400 border border-red-400/30',
         medium: 'bg-amber-500/20 text-amber-400 border border-amber-400/30',
-        low: 'bg-gray-500/20 text-gray-400 border border-gray-400/30'
+        low: 'bg-gray-500/20 text-blue-200 border border-blue-200/30'
       };
       return colors[priority];
     }
@@ -1307,9 +940,7 @@
           timeElement.parentElement.innerHTML = '<i class="fas fa-check text-green-400 text-2xl" aria-label="Vehicle has arrived"></i>';
           const alertTitle = currentAlerts.find(a => a.id === alertId)?.title || 'Transportation';
           showNotification('Arrival Alert', `${alertTitle} has arrived!`, 'success');
-          if (isVoiceEnabled) {
-            speak(`${alertTitle} has arrived at the station.`);
-          }
+          announceToUser(`${alertTitle} has arrived at the station.`);
         }
       }, 1000);
       countdownIntervals.push(interval);
@@ -1319,21 +950,19 @@
       filterBtns.forEach(b => {
         const isActive = b.dataset.filter === filterType;
         b.classList.toggle('active', isActive);
-        b.classList.toggle('border-sky-400', isActive);
-        b.classList.toggle('text-sky-400', isActive);
+        b.classList.toggle('border-blue-400', isActive);
+        b.classList.toggle('text-blue-400', isActive);
         b.classList.toggle('border-gray-600', !isActive);
-        b.classList.toggle('text-gray-400', !isActive);
+        b.classList.toggle('text-blue-200', !isActive);
         const countSpan = b.querySelector('span');
         if (countSpan) {
-          countSpan.classList.toggle('bg-sky-400', isActive);
+          countSpan.classList.toggle('bg-blue-400', isActive);
           countSpan.classList.toggle('bg-gray-600', !isActive);
         }
         b.setAttribute('aria-pressed', isActive ? 'true' : 'false');
       });
       filterStatus.textContent = `Filter set to ${filterType === 'all' ? 'All Alerts' : filterType.charAt(0).toUpperCase() + filterType.slice(1)}`;
-      if (isVoiceEnabled) {
-        speak(`Filtering by ${filterType === 'all' ? 'all alerts' : filterType}`);
-      }
+      announceToUser(`Filtering by ${filterType === 'all' ? 'all alerts' : filterType}`);
     }
 
     filterBtns.forEach(btn => {
@@ -1344,16 +973,6 @@
       });
     });
 
-    resetFiltersBtn.addEventListener('click', () => {
-      activeFilter = 'all';
-      updateFilterUI(activeFilter);
-      renderAlerts(activeFilter, sortBy.value);
-      if (isVoiceEnabled) {
-        speak('All filters reset. Showing all alerts.');
-      }
-      filterStatus.textContent = 'All filters reset';
-    });
-
     showAdvanced.addEventListener('click', () => {
       const isHidden = advancedFilters.classList.contains('hidden');
       advancedFilters.classList.toggle('hidden');
@@ -1361,34 +980,26 @@
         '<i class="fas fa-chevron-up" aria-hidden="true"></i><span>Hide Advanced</span>' :
         '<i class="fas fa-chevron-down" aria-hidden="true"></i><span>Advanced Filters</span>';
       showAdvanced.setAttribute('aria-expanded', isHidden);
-      if (isVoiceEnabled) {
-        speak(isHidden ? 'Showing advanced filters' : 'Hiding advanced filters');
-      }
+      announceToUser(isHidden ? 'Showing advanced filters' : 'Hiding advanced filters');
     });
 
     sortBy.addEventListener('change', () => {
       renderAlerts(activeFilter, sortBy.value);
-      if (isVoiceEnabled) {
-        const sortName = sortBy.options[sortBy.selectedIndex].text;
-        speak(`Sorting by ${sortName}`);
-      }
+      const sortName = sortBy.options[sortBy.selectedIndex].text;
+      announceToUser(`Sorting by ${sortName}`);
     });
 
     refreshBtn.addEventListener('click', () => {
-      refreshBtn.classList.add('refresh-animation');
-      if (isVoiceEnabled) {
-        speak('Refreshing transportation data...');
-      }
+      refreshBtn.classList.add('fa-spin');
+      announceToUser('Refreshing transportation data...');
       setTimeout(() => {
-        refreshBtn.classList.remove('refresh-animation');
+        refreshBtn.classList.remove('fa-spin');
         lastUpdate.textContent = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         simulateNewData();
         renderAlerts(activeFilter, sortBy.value);
         updateFilterCounts();
         showNotification('Data Refreshed', 'Latest transportation data has been successfully updated.', 'success');
-        if (isVoiceEnabled) {
-          speak('Data refreshed successfully.');
-        }
+        announceToUser('Data refreshed successfully.');
       }, 1500);
     });
 
@@ -1509,8 +1120,8 @@
 
     function showNotification(title, message, type = 'info') {
       const notification = document.createElement('div');
-      notification.className = `notification glass p-4 rounded-lg flex items-start space-x-3 ${type === 'error' ? 'border-l-4 border-red-400' :
-        type === 'success' ? 'border-l-4 border-green-400' : 'border-l-4 border-sky-400'}`;
+      notification.className = `notification glass-strong p-4 rounded-3xl flex items-start space-x-3 ${type === 'error' ? 'border-l-4 border-red-400' :
+        type === 'success' ? 'border-l-4 border-green-400' : 'border-l-4 border-blue-400'}`;
       notification.setAttribute('role', 'alert');
 
       const icon = type === 'error' ? 'exclamation-circle' :
@@ -1518,12 +1129,12 @@
 
       notification.innerHTML = `
         <i class="fas fa-${icon} ${type === 'error' ? 'text-red-400' :
-          type === 'success' ? 'text-green-400' : 'text-sky-400'} mt-1"></i>
+          type === 'success' ? 'text-green-400' : 'text-blue-400'} mt-1"></i>
         <div class="flex-1 min-w-0">
           <h4 class="font-bold text-white">${title}</h4>
-          <p class="text-gray-300 text-sm">${message}</p>
+          <p class="text-blue-200 text-sm">${message}</p>
         </div>
-        <button class="text-gray-400 hover:text-white focusable" aria-label="Dismiss notification">
+        <button class="text-blue-200 hover:text-white focusable hover-light glow-primary" aria-label="Dismiss notification" onpointerenter="announceToUser('Dismiss notification')">
           <i class="fas fa-times"></i>
         </button>
       `;
@@ -1536,9 +1147,11 @@
 
       notification.querySelector('button').addEventListener('click', () => {
         notification.remove();
+        announceToUser('Notification dismissed');
       });
 
       updateNotificationCount();
+      announceToUser(`${title}: ${message}`);
     }
 
     function updateNotificationCount() {
@@ -1557,6 +1170,7 @@
       const close = () => {
         modal.classList.add('hidden');
         document.body.style.overflow = '';
+        announceToUser('Modal closed');
       };
 
       closeModal.onclick = close;
@@ -1577,9 +1191,7 @@
             'Call Help',
             () => {
               showNotification('Emergency', 'Connecting to transportation helpline...', 'error');
-              if (isVoiceEnabled) {
-                speak('Connecting you to transportation emergency services. Please wait.');
-              }
+              announceToUser('Connecting you to transportation emergency services. Please wait.');
             }
           );
           break;
@@ -1594,6 +1206,7 @@
       });
       notifications = [];
       updateNotificationCount();
+      announceToUser('Showing recent notifications');
     });
 
     document.addEventListener('keydown', (e) => {
@@ -1601,21 +1214,35 @@
         e.preventDefault();
         refreshBtn.click();
       }
-      if (e.ctrlKey && e.altKey && e.key.toLowerCase() === 'v') {
-        toggleVoiceNavigation();
-      }
       if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
         modal.classList.add('hidden');
         document.body.style.overflow = '';
-      }
-      if (e.key === 'Escape' && document.getElementById('voiceCommandsHelp').style.display === 'block') {
-        hideVoiceHelp();
+        announceToUser('Modal closed');
       }
     });
 
     setTimeout(() => {
       showNotification('Welcome', 'Accessible Chennai alerts dashboard is ready with live updates!', 'info');
     }, 1000);
+
+    function announceToUser(message) {
+      const announcement = document.createElement('div');
+      announcement.setAttribute('aria-live', 'polite');
+      announcement.setAttribute('aria-atomic', 'true');
+      announcement.className = 'sr-only';
+      announcement.textContent = message;
+      document.body.appendChild(announcement);
+      setTimeout(() => {
+        document.body.removeChild(announcement);
+      }, 1000);
+    }
+
+    window.addEventListener('focus', (event) => {
+      if (event.target.matches('button, input, select, textarea, a, .alert-card')) {
+        event.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        announceToUser(`Focused: ${event.target.getAttribute('aria-label') || event.target.textContent.trim() || 'Element'}`);
+      }
+    }, true);
   </script>
 </body>
 </html>
