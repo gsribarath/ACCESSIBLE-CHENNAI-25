@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessible Chennai - Voice Mode</title>
+    <meta name="description" content="Voice-enabled accessible navigation for Chennai's public transport system">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #0a415d;
+            color: #f8fafc;
+        }
+        /* Voice Assistant Interface */
+        .voice-assistant {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+        .voice-button {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+            border: none;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(14, 165, 233, 0.4);
+            transition: all 0.3s ease;
+        }
+        .voice-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(14, 165, 233, 0.6);
+        }
+        .voice-button.listening {
+            animation: pulse 1s infinite;
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        .voice-button.speaking {
+            animation: pulse 1s infinite;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        .voice-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #64748b;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+        .voice-status {
+            position: absolute;
+            bottom: 90px;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 12px;
+            min-width: 250px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .voice-status.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        /* Voice Commands Panel */
+        .voice-commands {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            max-width: 300px;
+            z-index: 999;
+            opacity: 1;
+            transform: translateX(0);
+            transition: all 0.3s ease;
+        }
+        .voice-commands.hidden {
+            opacity: 0;
+            transform: translateX(20px);
+            pointer-events: none;
+        }
+        .glass-dark {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        /* Accessibility focus styles */
+        .focusable:focus {
+            outline: 3px solid rgba(255, 255, 255, 0.8);
+            outline-offset: 2px;
+        }
+        /* Text gradient */
+        .text-gradient {
+            background: linear-gradient(90deg, #ffffff 0%, #e0f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        /* Card hover effects */
+        .feature-card {
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+        }
+        .feature-card:hover {
+            transform: scale(1.05) translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        /* Voice highlight */
+        .voice-highlight {
+            background-color: rgba(14, 165, 233, 0.3) !important;
+            border: 2px solid #0ea5e9 !important;
+            border-radius: 8px;
+            animation: highlight-pulse 2s ease-in-out;
+        }
+        @keyframes highlight-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        /* Reduced motion settings */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation: none !important;
+                transition: none !important;
+                scroll-behavior: auto !important;
+            }
+        }
+        /* Loading animation */
+        .loading-dots::after {
+            content: '';
+            animation: loadingDots 1.5s infinite;
+        }
+        @keyframes loadingDots {
+            0% { content: ''; }
+            25% { content: '.'; }
+            50% { content: '..'; }
+            75% { content: '...'; }
+            100% { content: ''; }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Voice Commands Help Panel -->
+    <div class="voice-commands hidden" id="voiceCommands">
+        <h3 class="text-white font-bold mb-3 text-lg">
+            <i class="fas fa-microphone mr-2 text-blue-400"></i> Voice Commands
+        </h3>
+        <div class="space-y-2 text-sm text-gray-300">
+            <div><span class="text-blue-400">"Help"</span> - Show all commands</div>
+            <div><span class="text-green-400">"Navigate"</span> - Go to navigation page</div>
+            <div><span class="text-cyan-400">"Download"</span> - App download info</div>
+            <div><span class="text-orange-400">"Alerts"</span> - Go to alerts page</div>
+            <div><span class="text-red-400">"Stop"</span> - Stop current action</div>
+            <div><span class="text-yellow-400">"Start listening"</span> - Activate continuous mode</div>
+            <div><span class="text-purple-400">"Stop listening"</span> - Deactivate continuous mode</div>
+        </div>
+        <button onclick="toggleCommandsPanel()" class="mt-3 text-xs text-gray-400 hover:text-white">Hide Commands</button>
+    </div>
+
+    <!-- Voice Assistant Interface -->
+    <div class="voice-assistant">
+        <div class="voice-status" id="voiceStatus">Click microphone to start voice mode</div>
+        <button class="voice-button focusable" id="voiceButton" aria-label="Voice Assistant - Click or press space to activate">
+            <i class="fas fa-microphone text-3xl"></i>
+        </button>
+    </div>
+
+    <!-- Skip to content link -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:px-4 focus:py-2 focus:bg-white focus:text-blue-600 focus:rounded-md focus:z-50">
+        Skip to main content
+    </a>
+
+    <!-- Header -->
+    <header class="bg-blue-600/20 backdrop-blur-md sticky top-0 z-40 shadow-lg">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full flex items-center justify-center">
+                    <i class="fas fa-map-marked-alt text-2xl text-white"></i>
+                </div>
+                <h1 class="text-xl font-bold text-white">Accessible Chennai</h1>
+                <span class="text-sm bg-green-500 text-white px-2 py-1 rounded-full" id="voiceModeIndicator">Voice Ready</span>
+            </div>
+            <nav aria-label="Main navigation">
+                <ul class="flex space-x-2">
+                    <li><a href="index.html" class="px-3 py-2 rounded-md text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 focusable transition-all duration-300" data-voice-nav="home">Home</a></li>
+                    <li><a href="javascript:void(0)" onclick="navigateToPage('navigate2.html')" class="px-3 py-2 rounded-md text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 focusable transition-all duration-300" data-voice-nav="navigate">Navigate</a></li>
+                    <li><a href="javascript:void(0)" onclick="navigateToPage('alerts2.html')" class="px-3 py-2 rounded-md text-sm font-medium text-white/80 hover:text-white hover:bg-white/10 focusable transition-all duration-300" data-voice-nav="alerts">Alerts</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main id="main-content" class="flex-grow">
+        <!-- Hero section -->
+        <section class="py-16 text-center" data-voice-section="hero" id="home">
+            <div class="container mx-auto px-4">
+                <div class="max-w-4xl mx-auto">
+                    <h1 class="text-5xl md:text-6xl font-bold mb-6">
+                        <span class="text-white">Chennai Transport</span><br>
+                        <span class="text-gradient">Made Accessible</span>
+                    </h1>
+                    <p class="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
+                        Navigate the city with confidence using voice commands and audio feedback designed for complete accessibility.
+                    </p>
+                    <div class="space-y-4">
+                        <button onclick="navigateToPage('navigate2.html')" class="block mx-auto bg-white text-blue-600 px-8 py-4 rounded-full font-bold hover:bg-gray-100 focusable transition-all duration-300 text-lg" data-voice-action="get-started">
+                            <i class="fas fa-play mr-2"></i> Start Navigation
+                        </button>
+                        <p class="text-sm text-white/70">Say "Navigate" or "Get Started" to begin</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Download section -->
+        <section class="py-16 bg-white/5 backdrop-blur-md" data-voice-section="download" id="download">
+            <div class="container mx-auto px-4">
+                <div class="max-w-3xl mx-auto text-center">
+                    <h2 class="text-3xl font-bold mb-4 text-white">Ready to Navigate Chennai with Voice?</h2>
+                    <p class="text-lg mb-6 text-white/90">Download the app and experience fully voice-controlled accessibility features.</p>
+                    <p class="text-sm text-white/60 mb-8">Say "Download" for app store information</p>
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <button onclick="downloadApp('ios')" class="px-6 py-3 bg-white text-blue-600 font-medium rounded-lg hover:bg-gray-100 focusable transition-all duration-300" data-voice-action="download-ios">
+                            <div class="flex items-center">
+                                <i class="fab fa-apple mr-2 text-xl"></i>
+                                <div class="text-left">
+                                    <div class="text-xs">Download on the</div>
+                                    <div class="text-lg font-semibold leading-5">App Store</div>
+                                </div>
+                            </div>
+                        </button>
+                        <button onclick="downloadApp('android')" class="px-6 py-3 bg-white text-blue-600 font-medium rounded-lg hover:bg-gray-100 focusable transition-all duration-300" data-voice-action="download-android">
+                            <div class="flex items-center">
+                                <i class="fab fa-google-play mr-2 text-xl"></i>
+                                <div class="text-left">
+                                    <div class="text-xs">Get it on</div>
+                                    <div class="text-lg font-semibold leading-5">Google Play</div>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-blue-600/20 backdrop-blur-md text-white py-8">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-white/80 mb-4">&copy; 2024 Accessible Chennai. Voice-enabled accessibility for everyone.</p>
+            <p class="text-sm text-white/60">Say "Help" anytime to get voice command assistance</p>
+        </div>
+    </footer>
+
+    <script>
+        // Global variables
+        let recognition = null;
+        let isListening = false;
+        let isVoiceEnabled = false;
+        let speechSynthesis = window.speechSynthesis;
+        let currentHighlight = null;
+        let statusTimeout = null;
+        let recognitionTimeout = null;
+
+        // Voice commands mapping
+        const voiceCommands = {
+            'help': () => showHelp(),
+            'navigate': () => navigateToPage('navigate2.html'),
+            'navigation': () => navigateToPage('navigate2.html'),
+            'get started': () => navigateToPage('navigate2.html'),
+            'start': () => navigateToPage('navigate2.html'),
+            'alerts': () => navigateToPage('alerts2.html'),
+            'alert': () => navigateToPage('alerts2.html'),
+            'download': () => readDownloadInfo(),
+            'home': () => navigateToSection('home'),
+            'stop': () => stopCurrentAction(),
+            'start listening': () => startVoiceMode(),
+            'stop listening': () => stopVoiceMode()
+        };
+
+        // Navigate to external page
+        function navigateToPage(page) {
+            speak(`Navigating to ${page.replace('.html', '')} page`);
+            updateVoiceStatus(`Opening ${page}`);
+            setTimeout(() => {
+                window.location.href = page;
+            }, 1000);
+        }
+
+        // Check browser support for speech recognition
+        function checkSpeechSupport() {
+            if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
+                console.warn('Speech recognition not supported');
+                updateVoiceStatus('Speech recognition not supported in this browser');
+                document.getElementById('voiceButton').disabled = true;
+                document.getElementById('voiceModeIndicator').textContent = 'Voice Not Supported';
+                document.getElementById('voiceModeIndicator').className = 'text-sm bg-red-500 text-white px-2 py-1 rounded-full';
+                return false;
+            }
+            return true;
+        }
+
+        // Initialize speech recognition with continuous listening
+        function initializeSpeechRecognition() {
+            if (!checkSpeechSupport()) return false;
+
+            try {
+                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+                recognition.maxAlternatives = 1;
+
+                recognition.onstart = function() {
+                    console.log('Speech recognition started');
+                    isListening = true;
+                    updateVoiceStatus('Listening continuously... Speak commands');
+                    document.getElementById('voiceButton').classList.add('listening');
+                    document.getElementById('voiceModeIndicator').textContent = 'Always Listening';
+                    document.getElementById('voiceModeIndicator').className = 'text-sm bg-green-500 text-white px-2 py-1 rounded-full';
+                    
+                    if (recognitionTimeout) {
+                        clearTimeout(recognitionTimeout);
+                        recognitionTimeout = null;
+                    }
+                };
+
+                recognition.onresult = function(event) {
+                    let interimTranscript = '';
+                    let finalTranscript = '';
+                    
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const transcript = event.results[i][0].transcript;
+                        if (event.results[i].isFinal) {
+                            finalTranscript += transcript;
+                        } else {
+                            interimTranscript += transcript;
+                        }
+                    }
+
+                    if (interimTranscript) {
+                        updateVoiceStatus(`Hearing: ${interimTranscript}`);
+                    }
+
+                    if (finalTranscript) {
+                        console.log('Final transcript:', finalTranscript);
+                        processVoiceCommand(finalTranscript.toLowerCase().trim());
+                        updateVoiceStatus('Listening continuously... Say next command');
+                    }
+                };
+
+                recognition.onerror = function(event) {
+                    console.error('Speech recognition error:', event.error);
+                    isListening = false;
+                    document.getElementById('voiceButton').classList.remove('listening');
+                    
+                    let errorMessage = 'Recognition error occurred';
+                    let shouldRestart = true;
+                    
+                    switch (event.error) {
+                        case 'no-speech':
+                            errorMessage = 'No speech detected. Still listening...';
+                            shouldRestart = true;
+                            break;
+                        case 'not-allowed':
+                            errorMessage = 'Microphone access denied. Please enable microphone permissions.';
+                            isVoiceEnabled = false;
+                            document.getElementById('voiceButton').disabled = true;
+                            document.getElementById('voiceModeIndicator').textContent = 'Mic Blocked';
+                            document.getElementById('voiceModeIndicator').className = 'text-sm bg-red-500 text-white px-2 py-1 rounded-full';
+                            shouldRestart = false;
+                            break;
+                        case 'network':
+                            errorMessage = 'Network error. Retrying in 2 seconds...';
+                            shouldRestart = true;
+                            break;
+                        case 'aborted':
+                            errorMessage = 'Recognition stopped. Restarting...';
+                            shouldRestart = true;
+                            break;
+                        default:
+                            errorMessage = `Recognition error: ${event.error}. Restarting...`;
+                            shouldRestart = true;
+                    }
+                    
+                    updateVoiceStatus(errorMessage);
+                    
+                    if (shouldRestart && isVoiceEnabled) {
+                        setTimeout(() => {
+                            if (!isListening && isVoiceEnabled) {
+                                console.log('Auto-restarting recognition...');
+                                try {
+                                    recognition.start();
+                                } catch (e) {
+                                    console.error('Failed to restart recognition:', e);
+                                    updateVoiceStatus('Failed to restart listening. Click microphone to retry.');
+                                }
+                            }
+                        }, event.error === 'network' ? 2000 : 1000);
+                    }
+                };
+
+                recognition.onend = function() {
+                    console.log('Speech recognition ended');
+                    isListening = false;
+                    document.getElementById('voiceButton').classList.remove('listening');
+                    
+                    if (isVoiceEnabled) {
+                        setTimeout(() => {
+                            if (!isListening && isVoiceEnabled) {
+                                console.log('Auto-restarting recognition to maintain continuous listening...');
+                                try {
+                                    recognition.start();
+                                } catch (e) {
+                                    console.error('Failed to restart recognition:', e);
+                                    updateVoiceStatus('Listening stopped. Click microphone to restart.');
+                                    document.getElementById('voiceModeIndicator').textContent = 'Click to Listen';
+                                    document.getElementById('voiceModeIndicator').className = 'text-sm bg-blue-500 text-white px-2 py-1 rounded-full';
+                                }
+                            }
+                        }, 500);
+                    }
+                };
+
+                return true;
+            } catch (error) {
+                console.error('Failed to initialize speech recognition:', error);
+                updateVoiceStatus('Failed to initialize speech recognition');
+                return false;
+            }
+        }
+
+        // Update voice status with proper cleanup
+        function updateVoiceStatus(message) {
+            const statusElement = document.getElementById('voiceStatus');
+            statusElement.textContent = message;
+            statusElement.classList.add('visible');
+            
+            if (statusTimeout) {
+                clearTimeout(statusTimeout);
+            }
+            
+            statusTimeout = setTimeout(() => {
+                statusElement.classList.remove('visible');
+            }, 4000);
+        }
+
+        // Process voice commands with better error handling
+        function processVoiceCommand(command) {
+            console.log('Processing command:', command);
+            
+            let matchedCommand = null;
+            let bestMatch = '';
+            
+            for (const [key, func] of Object.entries(voiceCommands)) {
+                if (command === key || command.includes(key)) {
+                    if (key.length > bestMatch.length) {
+                        matchedCommand = func;
+                        bestMatch = key;
+                    }
+                }
+            }
+
+            if (matchedCommand) {
+                updateVoiceStatus(`Command: ${bestMatch}`);
+                document.getElementById('voiceButton').classList.add('speaking');
+                setTimeout(() => {
+                    document.getElementById('voiceButton').classList.remove('speaking');
+                }, 1000);
+                matchedCommand();
+            } else {
+                setTimeout(() => {
+                    speak('Command not found');
+                }, 200);
+                updateVoiceStatus('Command not recognized');
+            }
+        }
+
+        // Improved speech synthesis with better error details
+        function speak(text) {
+            if (!speechSynthesis) {
+                console.warn('Speech synthesis not available');
+                updateVoiceStatus('Speech synthesis not available');
+                return;
+            }
+
+            if (!text || text.trim() === '') {
+                console.warn('Empty text provided to speak function');
+                return;
+            }
+
+            try {
+                speechSynthesis.cancel();
+            } catch (e) {
+                console.warn('Error cancelling speech:', e);
+            }
+
+            setTimeout(() => {
+                try {
+                    const utterance = new SpeechSynthesisUtterance(text.trim());
+                    utterance.lang = 'en-US';
+                    utterance.volume = 0.7;
+                    utterance.rate = 0.8;
+                    utterance.pitch = 1;
+                    
+                    utterance.onstart = () => {
+                        console.log('Speech started:', text);
+                        document.getElementById('voiceButton').classList.add('speaking');
+                    };
+                    
+                    utterance.onend = () => {
+                        console.log('Speech ended');
+                        document.getElementById('voiceButton').classList.remove('speaking');
+                    };
+                    
+                    utterance.onerror = (event) => {
+                        console.error('Speech synthesis error details:', {
+                            error: event.error,
+                            type: event.type,
+                            text: text,
+                            errorObject: JSON.stringify(event, Object.getOwnPropertyNames(event))
+                        });
+                        
+                        document.getElementById('voiceButton').classList.remove('speaking');
+                        
+                        let errorMessage = 'Speech failed';
+                        switch (event.error) {
+                            case 'network':
+                                errorMessage = 'Network error - speech unavailable';
+                                break;
+                            case 'synthesis-failed':
+                                errorMessage = 'Speech synthesis failed';
+                                break;
+                            case 'language-not-supported':
+                                errorMessage = 'Language not supported';
+                                break;
+                            case 'voice-not-found':
+                                errorMessage = 'Voice not found';
+                                break;
+                            case 'audio-busy':
+                                errorMessage = 'Audio system busy';
+                                break;
+                            case 'not-allowed':
+                                errorMessage = 'Speech not allowed';
+                                break;
+                            default:
+                                errorMessage = `Speech error: ${event.error || 'unknown'}`;
+                        }
+                        
+                        updateVoiceStatus(errorMessage);
+                        
+                        setTimeout(() => {
+                            try {
+                                speechSynthesis.cancel();
+                            } catch (e) {
+                                console.warn('Error during speech recovery:', e);
+                            }
+                        }, 100);
+                    };
+
+                    const voices = speechSynthesis.getVoices();
+                    console.log('Available voices:', voices.length);
+                    
+                    if (voices.length > 0) {
+                        const preferredVoice = voices.find(voice => 
+                            voice.lang === 'en-US' && voice.localService
+                        ) || voices.find(voice => 
+                            voice.lang.startsWith('en-') && voice.localService
+                        ) || voices.find(voice => 
+                            voice.lang === 'en-US'
+                        ) || voices.find(voice => 
+                            voice.lang.startsWith('en-')
+                        );
+                        
+                        if (preferredVoice) {
+                            utterance.voice = preferredVoice;
+                            console.log('Using voice:', preferredVoice.name, preferredVoice.lang);
+                        } else {
+                            console.log('No suitable English voice found, using default');
+                        }
+                    }
+                    
+                    try {
+                        speechSynthesis.speak(utterance);
+                    } catch (speakError) {
+                        console.error('Error calling speechSynthesis.speak:', speakError);
+                        updateVoiceStatus('Speech synthesis unavailable');
+                        document.getElementById('voiceButton').classList.remove('speaking');
+                    }
+                    
+                } catch (error) {
+                    console.error('Error creating utterance:', error);
+                    updateVoiceStatus('Speech creation failed');
+                    document.getElementById('voiceButton').classList.remove('speaking');
+                }
+            }, 150);
+        }
+
+        // Initialize voices
+        function initializeVoices() {
+            if (speechSynthesis) {
+                speechSynthesis.getVoices();
+                
+                if (speechSynthesis.onvoiceschanged !== undefined) {
+                    speechSynthesis.onvoiceschanged = () => {
+                        const voices = speechSynthesis.getVoices();
+                        console.log('Voices loaded:', voices.length);
+                    };
+                }
+            }
+        }
+
+        // Handle microphone permissions
+        function handleMicrophonePermissions() {
+            if (!navigator.permissions) {
+                console.log('Permissions API not supported');
+                return;
+            }
+
+            navigator.permissions.query({name: 'microphone'}).then(function(result) {
+                console.log('Microphone permission:', result.state);
+                
+                switch (result.state) {
+                    case 'granted':
+                        updateVoiceStatus('Microphone access granted. Voice mode ready.');
+                        document.getElementById('voiceButton').disabled = false;
+                        document.getElementById('voiceModeIndicator').textContent = 'Voice Ready';
+                        document.getElementById('voiceModeIndicator').className = 'text-sm bg-blue-500 text-white px-2 py-1 rounded-full';
+                        break;
+                        
+                    case 'denied':
+                        updateVoiceStatus('Microphone blocked. Click browser address bar to enable microphone access.');
+                        document.getElementById('voiceButton').disabled = true;
+                        document.getElementById('voiceModeIndicator').textContent = 'Mic Blocked';
+                        document.getElementById('voiceModeIndicator').className = 'text-sm bg-red-500 text-white px-2 py-1 rounded-full';
+                        
+                        setTimeout(() => {
+                            speak('Microphone access blocked. Please enable microphone in browser settings.');
+                        }, 1000);
+                        break;
+                        
+                    case 'prompt':
+                        updateVoiceStatus('Click microphone to grant permission and start voice mode');
+                        document.getElementById('voiceButton').disabled = false;
+                        document.getElementById('voiceModeIndicator').textContent = 'Permission Needed';
+                        document.getElementById('voiceModeIndicator').className = 'text-sm bg-yellow-500 text-white px-2 py-1 rounded-full';
+                        break;
+                }
+                
+                result.onchange = function() {
+                    console.log('Microphone permission changed:', this.state);
+                    handleMicrophonePermissions();
+                };
+                
+            }).catch(function(error) {
+                console.log('Error checking microphone permissions:', error);
+                updateVoiceStatus('Click microphone to start voice mode');
+                document.getElementById('voiceButton').disabled = false;
+            });
+        }
+
+        // Start voice mode with continuous listening
+        function startVoiceMode() {
+            if (!isVoiceEnabled) {
+                if (navigator.permissions) {
+                    navigator.permissions.query({name: 'microphone'}).then(function(result) {
+                        if (result.state === 'denied') {
+                            updateVoiceStatus('Microphone access denied. Please enable in browser settings.');
+                            speak('Microphone access is required for voice commands');
+                            return;
+                        }
+                        
+                        if (initializeSpeechRecognition()) {
+                            isVoiceEnabled = true;
+                            initializeVoices();
+                            
+                            setTimeout(() => {
+                                speak('Continuous listening activated');
+                            }, 500);
+                            
+                            updateVoiceStatus('Continuous listening mode activated');
+                            document.getElementById('voiceModeIndicator').textContent = 'Always Listening';
+                            document.getElementById('voiceModeIndicator').className = 'text-sm bg-green-500 text-white px-2 py-1 rounded-full';
+                            
+                            setTimeout(() => {
+                                if (!isListening) {
+                                    try {
+                                        recognition.start();
+                                    } catch (e) {
+                                        console.error('Failed to start initial recognition:', e);
+                                    }
+                                }
+                            }, 1000);
+                        }
+                    }).catch(() => {
+                        if (initializeSpeechRecognition()) {
+                            isVoiceEnabled = true;
+                            initializeVoices();
+                            setTimeout(() => {
+                                speak('Continuous listening activated');
+                            }, 500);
+                            updateVoiceStatus('Continuous listening mode activated');
+                            document.getElementById('voiceModeIndicator').textContent = 'Always Listening';
+                            document.getElementById('voiceModeIndicator').className = 'text-sm bg-green-500 text-white px-2 py-1 rounded-full';
+                            
+                            setTimeout(() => {
+                                if (!isListening) {
+                                    try {
+                                        recognition.start();
+                                    } catch (e) {
+                                        console.error('Failed to start initial recognition:', e);
+                                    }
+                                }
+                            }, 1000);
+                        }
+                    });
+                } else {
+                    if (initializeSpeechRecognition()) {
+                        isVoiceEnabled = true;
+                        initializeVoices();
+                        setTimeout(() => {
+                            speak('Continuous listening activated');
+                        }, 500);
+                        updateVoiceStatus('Continuous listening mode activated');
+                        document.getElementById('voiceModeIndicator').textContent = 'Always Listening';
+                        document.getElementById('voiceModeIndicator').className = 'text-sm bg-green-500 text-white px-2 py-1 rounded-full';
+                        
+                        setTimeout(() => {
+                            if (!isListening) {
+                                try {
+                                    recognition.start();
+                                } catch (e) {
+                                    console.error('Failed to start initial recognition:', e);
+                                }
+                            }
+                        }, 1000);
+                    }
+                }
+            }
+        }
+
+        // Stop voice mode
+        function stopVoiceMode() {
+            isVoiceEnabled = false;
+            if (recognition && isListening) {
+                recognition.stop();
+            }
+            speechSynthesis.cancel();
+            updateVoiceStatus('Voice mode deactivated');
+            document.getElementById('voiceModeIndicator').textContent = 'Voice Stopped';
+            document.getElementById('voiceModeIndicator').className = 'text-sm bg-gray-500 text-white px-2 py-1 rounded-full';
+            speak('Voice mode deactivated');
+        }
+
+        // Show help
+        function showHelp() {
+            const commandsPanel = document.getElementById('voiceCommands');
+            commandsPanel.classList.remove('hidden');
+            
+            setTimeout(() => {
+                speak('Available voice commands are: Say Help to show commands panel. Say Navigate to go to navigation page. Say Download for app download information. Say Alerts to go to alerts page. Say Home to return to home section. Say Stop to stop current action. Say Start listening to activate continuous mode. Say Stop listening to deactivate continuous mode.');
+            }, 200);
+            
+            highlightElement(commandsPanel);
+        }
+
+        // Toggle commands panel
+        function toggleCommandsPanel() {
+            const commandsPanel = document.getElementById('voiceCommands');
+            commandsPanel.classList.toggle('hidden');
+            const isVisible = !commandsPanel.classList.contains('hidden');
+            
+            setTimeout(() => {
+                speak(isVisible ? 'Commands shown' : 'Commands hidden');
+            }, 200);
+        }
+
+        // Navigate to section
+        function navigateToSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section) {
+                section.scrollIntoView({ behavior: 'smooth' });
+                highlightElement(section);
+                speak(`Navigating to ${sectionId} section`);
+                updateVoiceStatus(`Navigated to ${sectionId}`);
+            } else {
+                speak(`Section ${sectionId} not found`);
+                updateVoiceStatus(`Section ${sectionId} not found`);
+            }
+        }
+
+        // Read download info
+        function readDownloadInfo() {
+            const downloadSection = document.getElementById('download');
+            if (downloadSection) {
+                navigateToSection('download');
+                speak('Download section. Ready to navigate Chennai with voice? Download the app and experience fully voice-controlled accessibility features. Available on App Store and Google Play.');
+            }
+        }
+
+        // Download app
+        function downloadApp(platform) {
+            const platformName = platform === 'ios' ? 'App Store' : 'Google Play Store';
+            speak(`Opening ${platformName} for download`);
+            updateVoiceStatus(`Opening ${platformName}`);
+            
+            const url = platform === 'ios' 
+                ? 'https://www.apple.com/app-store/' 
+                : 'https://play.google.com/store';
+            
+            window.open(url, '_blank');
+        }
+
+        // Stop current action
+        function stopCurrentAction() {
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
+            if (isListening && recognition) {
+                recognition.stop();
+            }
+            clearTimeout(recognitionTimeout);
+            removeHighlight();
+            speak('All actions stopped');
+            updateVoiceStatus('Actions stopped');
+        }
+
+        // Highlight element
+        function highlightElement(element) {
+            removeHighlight();
+            element.classList.add('voice-highlight');
+            currentHighlight = element;
+            setTimeout(removeHighlight, 3000);
+        }
+
+        // Remove highlight
+        function removeHighlight() {
+            if (currentHighlight) {
+                currentHighlight.classList.remove('voice-highlight');
+                currentHighlight = null;
+            }
+        }
+
+        // Toggle voice recognition
+        function toggleVoiceRecognition() {
+            if (!isVoiceEnabled) {
+                startVoiceMode();
+                return;
+            }
+
+            if (isListening) {
+                isVoiceEnabled = false;
+                if (recognition) {
+                    recognition.stop();
+                }
+                updateVoiceStatus('Voice mode stopped. Click to restart continuous listening.');
+                document.getElementById('voiceModeIndicator').textContent = 'Click to Listen';
+                document.getElementById('voiceModeIndicator').className = 'text-sm bg-gray-500 text-white px-2 py-1 rounded-full';
+                speak('Continuous listening stopped');
+            } else {
+                if (recognition) {
+                    try {
+                        isVoiceEnabled = true;
+                        recognition.start();
+                        updateVoiceStatus('Starting continuous listening...');
+                    } catch (error) {
+                        console.error('Failed to start recognition:', error);
+                        updateVoiceStatus('Failed to start voice recognition');
+                        speak('Failed to start voice recognition');
+                    }
+                } else {
+                    updateVoiceStatus('Voice recognition not initialized');
+                }
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeVoices();
+            
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                console.log('Reduced motion preference detected');
+                updateVoiceStatus('Voice mode available - reduced motion mode');
+            }
+
+            if (checkSpeechSupport()) {
+                handleMicrophonePermissions();
+                
+                setTimeout(() => {
+                    if (!isVoiceEnabled && !document.getElementById('voiceButton').disabled) {
+                        startVoiceMode();
+                    }
+                }, 3000);
+            }
+
+            const voiceButton = document.getElementById('voiceButton');
+            voiceButton.addEventListener('click', function() {
+                if (this.disabled) {
+                    updateVoiceStatus('Microphone access required. Please enable in browser settings.');
+                    speak('Please enable microphone access in browser settings');
+                } else {
+                    toggleVoiceRecognition();
+                }
+            });
+            
+            voiceButton.addEventListener('keydown', function(e) {
+                if (e.key === ' ' || e.key === 'Enter') {
+                    e.preventDefault();
+                    if (this.disabled) {
+                        updateVoiceStatus('Microphone access required. Please enable in browser settings.');
+                        speak('Please enable microphone access in browser settings');
+                    } else {
+                        toggleVoiceRecognition();
+                    }
+                }
+            });
+
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({ behavior: 'smooth' });
+                        highlightElement(targetElement);
+                        setTimeout(() => {
+                            speak(`Opened ${this.textContent}`);
+                        }, 300);
+                    }
+                });
+            });
+
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    if (isListening && recognition) {
+                        try {
+                            recognition.stop();
+                        } catch (e) {
+                            console.warn('Error stopping recognition on visibility change:', e);
+                        }
+                    }
+                    if (speechSynthesis && speechSynthesis.speaking) {
+                        try {
+                            speechSynthesis.cancel();
+                        } catch (e) {
+                            console.warn('Error cancelling speech on visibility change:', e);
+                        }
+                    }
+                }
+            });
+
+            window.addEventListener('beforeunload', function() {
+                try {
+                    if (recognition && isListening) {
+                        recognition.stop();
+                    }
+                    if (speechSynthesis && speechSynthesis.speaking) {
+                        speechSynthesis.cancel();
+                    }
+                } catch (e) {
+                    console.warn('Error during cleanup:', e);
+                }
+            });
+        });
+
+        window.addEventListener('error', function(e) {
+            console.error('Global error:', e);
+            if (e.message && e.message.includes('speech')) {
+                updateVoiceStatus('Speech error occurred');
+            }
+        });
+    </script>
+</body>
+</html>
