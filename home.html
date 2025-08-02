@@ -312,7 +312,7 @@
           stopRecognition();
           return;
         } else if (command.includes("normal mode")) {
-          speakAndRedirect("Redirecting to normal mode", "home.html");
+          speakAndRedirect("Redirecting to normal mode", "index.html");
           stopRecognition();
           return;
         }
@@ -340,7 +340,7 @@
       stopRecognition();
       justHandledCommand = true;
       if (mode === "normal") {
-        speakAndRedirect("Redirecting to normal mode", "home.html");
+        speakAndRedirect("Redirecting to normal mode", "index.html");
       } else if (mode === "voice") {
         speakAndRedirect("Redirecting to voice mode", "voicemode.html");
         isVoiceMode = true;
