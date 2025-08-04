@@ -359,6 +359,81 @@
       border-radius: 4px;
     }
 
+    /* Speech Display */
+    .speech-display {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 15px;
+      padding: 20px;
+      max-width: 600px;
+      min-width: 300px;
+      z-index: 999;
+      opacity: 0;
+      transform: translateX(-50%) translateY(-20px);
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .speech-display.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Voice Commands Panel */
+    .voice-commands {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 15px;
+      padding: 20px;
+      max-width: 300px;
+      z-index: 999;
+      opacity: 1;
+      transform: translateX(0);
+      transition: all 0.3s ease;
+    }
+
+    .voice-commands.hidden {
+      opacity: 0;
+      transform: translateX(20px);
+      pointer-events: none;
+    }
+
+    /* Voice highlight */
+    .voice-highlight {
+      background-color: rgba(14, 165, 233, 0.3) !important;
+      border: 2px solid #0ea5e9 !important;
+      border-radius: 8px;
+      animation: highlight-pulse 2s ease-in-out;
+    }
+
+    @keyframes highlight-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    /* Loading animation */
+    .loading-dots::after {
+      content: '';
+      animation: loadingDots 1.5s infinite;
+    }
+
+    @keyframes loadingDots {
+      0% { content: ''; }
+      25% { content: '.'; }
+      50% { content: '..'; }
+      75% { content: '...'; }
+      100% { content: ''; }
+    }
+
     @media (max-width: 768px) {
       select {
         font-size: 14px;
@@ -403,12 +478,42 @@
   </style>
 </head>
 <body class="text-white">
+  <!-- Speech Display -->
+  <div class="speech-display" id="speechDisplay">
+    <h3 class="text-white font-bold mb-2">
+      <i class="fas fa-microphone mr-2 text-blue-400"></i> You said:
+    </h3>
+    <p class="text-lg text-gray-300" id="speechText">Listening...</p>
+  </div>
+
+  <!-- Voice Commands Help Panel -->
+  <div class="voice-commands hidden" id="voiceCommands">
+    <h3 class="text-white font-bold mb-3 text-lg">
+      <i class="fas fa-microphone mr-2 text-blue-400"></i> Voice Commands
+    </h3>
+    <div class="space-y-2 text-sm text-gray-300">
+      <div><span class="text-blue-400">"Help"</span> - Show all commands</div>
+      <div><span class="text-green-400">"Navigate"</span> - Plan a journey</div>
+      <div><span class="text-cyan-400">"Home"</span> - Go to home page</div>
+      <div><span class="text-orange-400">"Alerts"</span> - Go to alerts page</div>
+      <div><span class="text-red-400">"Stop"</span> - Stop current action</div>
+      <div><span class="text-yellow-400">"Start Navigation"</span> - Start navigation for selected route</div>
+      <div><span class="text-purple-400">"Find Route"</span> - Find accessible routes</div>
+    </div>
+    <button onclick="toggleCommandsPanel()" class="mt-3 text-xs text-gray-400 hover:text-white">Hide Commands</button>
+  </div>
+
+  <!-- Skip to content link -->
+  <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:px-4 focus:py-2 focus:bg-white focus:text-blue-600 focus:rounded-md focus:z-50">
+    Skip to main content
+  </a>
+
   <!-- Header -->
   <header class="fixed top-0 w-full z-50 glass backdrop-blur-xl">
     <div class="max-w-7xl mx-auto px-4 py-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center">
-          <a href="#" class="flex items-center space-x-1 focusable rounded-md" aria-label="Accessible Chennai Home">
+          <a href="home.html" class="flex items-center space-x-1 focusable rounded-md" aria-label="Accessible Chennai Home" data-voice-nav="home">
             <div class="w-20 h-20 rounded-full flex items-center justify-center">
               <img src="ACCESSIBLECHENNAII.png" alt="Accessible Chennai Logo" class="w-16 h-16 object-cover rounded-full">
             </div>
@@ -416,18 +521,18 @@
           </a>
         </div>
         <nav>
-          <a href="home.html" class="text-blue-200 hover:text-white mx-3" onpointerenter="announceToUser('Home')" aria-label="Home">Home</a>
-          <a href="navigate.html" class="text-white font-semibold mx-3" onpointerenter="announceToUser('Navigate')" aria-label="Navigate">Navigate</a>
-          <a href="community.html" class="text-blue-200 hover:text-white mx-3" onpointerenter="announceToUser('Community')" aria-label="Community">Community</a>
-          <a href="alerts.html" class="text-blue-200 hover:text-white mx-3" onpointerenter="announceToUser('Alerts')" aria-label="Alerts">Alerts</a>
-          <a href="settings.html" class="text-blue-200 hover:text-white mx-3" onpointerenter="announceToUser('Settings')" aria-label="Settings">Settings</a>
+          <a href="home.html" class="text-blue-200 hover:text-white mx-3 focusable" onpointerenter="announceToUser('Home')" aria-label="Home" data-voice-nav="home">Home</a>
+          <a href="navigate.html" class="text-white font-semibold mx-3 focusable" onpointerenter="announceToUser('Navigate')" aria-label="Navigate" data-voice-nav="navigate">Navigate</a>
+          <a href="community.html" class="text-blue-200 hover:text-white mx-3 focusable" onpointerenter="announceToUser('Community')" aria-label="Community" data-voice-nav="community">Community</a>
+          <a href="alerts.html" class="text-blue-200 hover:text-white mx-3 focusable" onpointerenter="announceToUser('Alerts')" aria-label="Alerts" data-voice-nav="alerts">Alerts</a>
+          <a href="settings.html" class="text-blue-200 hover:text-white mx-3 focusable" onpointerenter="announceToUser('Settings')" aria-label="Settings" data-voice-nav="settings">Settings</a>
         </nav>
       </div>
     </div>
   </header>
 
   <!-- Main Content -->
-  <main class="pt-32 pb-12 max-w-7xl mx-auto px-4">
+  <main id="main-content" class="pt-32 pb-12 max-w-7xl mx-auto px-4">
     <!-- Plan Your Journey -->
     <section class="mb-12 parallax-section">
       <div class="glass-strong p-8 rounded-3xl">
@@ -447,7 +552,7 @@
               <div class="relative">
                 <select 
                   id="current-location" 
-                  class="w-full p-4 rounded-xl text-black"
+                  class="w-full p-4 rounded-xl text-black focusable"
                   onchange="announceSelection(this, 'Start location selected')"
                   onpointerenter="announceToUser('Select your current location')"
                   aria-label="Select your current location"
@@ -486,7 +591,7 @@
                 <button 
                   type="button" 
                   onclick="detectLocation()" 
-                  class="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-300 hover:text-white transition-colors"
+                  class="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-300 hover:text-white transition-colors focusable"
                   aria-label="Detect current location"
                   onpointerenter="announceToUser('Detect current location')"
                 >
@@ -503,7 +608,7 @@
               <div class="relative">
                 <select 
                   id="destination" 
-                  class="w-full p-4 rounded-xl text-black"
+                  class="w-full p-4 rounded-xl text-black focusable"
                   onchange="announceSelection(this, 'Destination selected')"
                   onpointerenter="announceToUser('Select your destination')"
                   aria-label="Select your destination"
@@ -542,7 +647,7 @@
                 <button 
                   type="button" 
                   onclick="voiceDestinationInput()" 
-                  class="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-300 hover:text-white transition-colors"
+                  class="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-300 hover:text-white transition-colors focusable"
                   aria-label="Voice input for destination"
                   onpointerenter="announceToUser('Voice input for destination')"
                 >
@@ -559,17 +664,17 @@
               Accessibility Requirements
             </h3>
             <div class="grid md:grid-cols-3 gap-4">
-              <label class="glass p-4 rounded-xl cursor-pointer hover-light hover:bg-blue-500/20 transition-all" onpointerenter="announceToUser('Wheelchair Access')">
+              <label class="glass p-4 rounded-xl cursor-pointer hover-light hover:bg-blue-500/20 transition-all focusable" onpointerenter="announceToUser('Wheelchair Access')">
                 <input type="checkbox" id="wheelchair-access" class="mr-3" onchange="announceCheckbox(this, 'Wheelchair Access')">
                 <i class="fas fa-wheelchair text-green-400 mr-2" aria-hidden="true"></i>
                 Wheelchair Access
               </label>
-              <label class="glass p-4 rounded-xl cursor-pointer hover-light hover:bg-blue-500/20 transition-all" onpointerenter="announceToUser('Voice Guide')">
+              <label class="glass p-4 rounded-xl cursor-pointer hover-light hover:bg-blue-500/20 transition-all focusable" onpointerenter="announceToUser('Voice Guide')">
                 <input type="checkbox" id="voice-guide" class="mr-3" onchange="announceCheckbox(this, 'Voice Guide')" checked>
                 <i class="fas fa-volume-up text-blue-400 mr-2" aria-hidden="true"></i>
                 Voice Guide
               </label>
-              <label class="glass p-4 rounded-xl cursor-pointer hover-light hover:bg-blue-500/20 transition-all" onpointerenter="announceToUser('Step-Free Path')">
+              <label class="glass p-4 rounded-xl cursor-pointer hover-light hover:bg-blue-500/20 transition-all focusable" onpointerenter="announceToUser('Step-Free Path')">
                 <input type="checkbox" id="step-free" class="mr-3" onchange="announceCheckbox(this, 'Step-Free Path')">
                 <i class="fas fa-walking text-yellow-400 mr-2" aria-hidden="true"></i>
                 Step-Free Path
@@ -581,10 +686,11 @@
           <div class="text-center parallax-section">
             <button 
               type="submit" 
-              class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-12 py-4 rounded-2xl text-xl font-bold hover-light glow-primary transition-all duration-300"
+              class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-12 py-4 rounded-2xl text-xl font-bold hover-light glow-primary transition-all duration-300 focusable"
               aria-label="Find accessible route"
               onclick="announceButtonClick('Find Accessible Route')"
               onpointerenter="announceToUser('Find Accessible Route')"
+              data-voice-action="find route"
             >
               <i class="fas fa-search-location mr-3" aria-hidden="true"></i>
               <span id="route-button-text">Find Accessible Route</span>
@@ -614,10 +720,10 @@
       <h3 class="text-2xl font-bold text-gray-800 mb-4">Opening Google Maps</h3>
       <p class="text-gray-600 mb-6">Your accessible route will open in Google Maps with voice navigation ready. MTC Buses and Train routes will be highlighted.</p>
       <div class="flex justify-center space-x-4">
-        <button onclick="proceedToMaps()" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors" onpointerenter="announceToUser('Continue to Google Maps')">
+        <button onclick="proceedToMaps()" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors focusable" onpointerenter="announceToUser('Continue to Google Maps')">
           Continue
         </button>
-        <button onclick="closeMapOverlay()" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition-colors" onpointerenter="announceToUser('Cancel')">
+        <button onclick="closeMapOverlay()" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition-colors focusable" onpointerenter="announceToUser('Cancel')">
           Cancel
         </button>
       </div>
@@ -626,12 +732,32 @@
 
   <script>
     // Global variables
-    let voiceAssistanceEnabled = true; // Enable voice assistance by default
+    let voiceAssistanceEnabled = true;
     let currentRoute = null;
     let speechSynthesis = window.speechSynthesis;
     let speechRecognition = null;
     let lastSpokenMessage = '';
     let debounceTimeout = null;
+    let recognition = null;
+    let isListening = false;
+    let isVoiceEnabled = false;
+    let recognitionTimeout = null;
+    let hasWelcomed = false;
+    let currentHighlight = null;
+
+    // Voice commands mapping
+    const voiceCommands = {
+      'help': () => showHelp(),
+      'navigate': () => navigateToSection('main-content'),
+      'navigation': () => navigateToSection('main-content'),
+      'find route': () => handleRouteSearch({ preventDefault: () => {} }),
+      'home': () => navigateToPage('home.html'),
+      'alerts': () => navigateToPage('alerts.html'),
+      'community': () => navigateToPage('community.html'),
+      'settings': () => navigateToPage('settings.html'),
+      'start navigation': () => startNavigationForVoice(),
+      'stop': () => stopCurrentAction()
+    };
 
     // Initialize the application
     document.addEventListener('DOMContentLoaded', function() {
@@ -640,6 +766,12 @@
       setupParallaxScrolling();
       detectLocation();
       setupSpeechRecognition();
+      initializeVoices();
+      if (checkSpeechSupport()) {
+        setTimeout(() => {
+          startVoiceMode();
+        }, 1000);
+      }
       announceVoiceGuideOnboarding();
     });
 
@@ -671,7 +803,308 @@
         }
       });
 
-      // Initial announcement is handled in announceVoiceGuideOnboarding
+      // Handle anchor links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+          e.preventDefault();
+          const targetId = this.getAttribute('href').substring(1);
+          const targetElement = document.getElementById(targetId);
+          if (targetElement) {
+            targetElement.scrollIntoView({ behavior: 'smooth' });
+            highlightElement(targetElement);
+            setTimeout(() => {
+              announceToUser(`Opened ${this.textContent}`);
+            }, 300);
+          }
+        });
+      });
+    }
+
+    // Check browser support for speech recognition
+    function checkSpeechSupport() {
+      if (!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) {
+        console.warn('Speech recognition not supported');
+        announceToUser('Speech recognition not supported on this browser. Please use manual input.');
+        return false;
+      }
+      return true;
+    }
+
+    // Initialize speech recognition with continuous listening
+    function initializeSpeechRecognition() {
+      if (!checkSpeechSupport()) return false;
+
+      try {
+        recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.lang = 'en-IN';
+        recognition.maxAlternatives = 1;
+
+        recognition.onstart = function() {
+          console.log('Speech recognition started');
+          isListening = true;
+          showSpeechDisplay('Listening...');
+          
+          if (!hasWelcomed) {
+            setTimeout(() => {
+              announceToUser('Welcome to voice mode on the Navigate page. Say help for available commands.');
+              hasWelcomed = true;
+            }, 500);
+          }
+          
+          if (recognitionTimeout) {
+            clearTimeout(recognitionTimeout);
+            recognitionTimeout = null;
+          }
+        };
+
+        recognition.onresult = function(event) {
+          let interimTranscript = '';
+          let finalTranscript = '';
+          
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              finalTranscript += transcript;
+            } else {
+              interimTranscript += transcript;
+            }
+          }
+
+          if (interimTranscript) {
+            showSpeechDisplay(interimTranscript);
+          }
+
+          if (finalTranscript) {
+            console.log('Final transcript:', finalTranscript);
+            showSpeechDisplay(`"${finalTranscript}"`);
+            processVoiceCommand(finalTranscript.toLowerCase().trim());
+            
+            setTimeout(() => {
+              showSpeechDisplay('Listening...');
+            }, 2000);
+          }
+        };
+
+        recognition.onerror = function(event) {
+          console.error('Speech recognition error:', event.error);
+          isListening = false;
+          
+          let errorMessage = 'Recognition error occurred';
+          let shouldRestart = true;
+          
+          switch (event.error) {
+            case 'no-speech':
+              errorMessage = 'No speech detected. Still listening...';
+              shouldRestart = true;
+              break;
+            case 'not-allowed':
+              errorMessage = 'Microphone access denied. Please enable microphone permissions.';
+              isVoiceEnabled = false;
+              shouldRestart = false;
+              break;
+            case 'network':
+              errorMessage = 'Network error. Retrying in 2 seconds...';
+              shouldRestart = true;
+              break;
+            case 'aborted':
+              errorMessage = 'Recognition stopped. Restarting...';
+              shouldRestart = true;
+              break;
+            default:
+              errorMessage = `Recognition error: ${event.error}. Restarting...`;
+              shouldRestart = true;
+          }
+          
+          hideSpeechDisplay();
+          
+          if (shouldRestart && isVoiceEnabled) {
+            setTimeout(() => {
+              if (!isListening && isVoiceEnabled) {
+                console.log('Auto-restarting recognition...');
+                try {
+                  recognition.start();
+                } catch (e) {
+                  console.error('Failed to restart recognition:', e);
+                }
+              }
+            }, event.error === 'network' ? 2000 : 1000);
+          }
+        };
+
+        recognition.onend = function() {
+          console.log('Speech recognition ended');
+          isListening = false;
+          hideSpeechDisplay();
+          
+          if (isVoiceEnabled) {
+            setTimeout(() => {
+              if (!isListening && isVoiceEnabled) {
+                console.log('Auto-restarting recognition to maintain continuous listening...');
+                try {
+                  recognition.start();
+                } catch (e) {
+                  console.error('Failed to restart recognition:', e);
+                }
+              }
+            }, 500);
+          }
+        };
+
+        return true;
+      } catch (error) {
+        console.error('Failed to initialize speech recognition:', error);
+        return false;
+      }
+    }
+
+    // Show speech display
+    function showSpeechDisplay(text) {
+      const display = document.getElementById('speechDisplay');
+      const textElement = document.getElementById('speechText');
+      textElement.textContent = text;
+      display.classList.add('visible');
+    }
+
+    // Hide speech display
+    function hideSpeechDisplay() {
+      const display = document.getElementById('speechDisplay');
+      display.classList.remove('visible');
+    }
+
+    // Process voice commands
+    function processVoiceCommand(command) {
+      console.log('Processing command:', command);
+      
+      let matchedCommand = null;
+      let bestMatch = '';
+      
+      for (const [key, func] of Object.entries(voiceCommands)) {
+        if (command === key || command.includes(key)) {
+          if (key.length > bestMatch.length) {
+            matchedCommand = func;
+            bestMatch = key;
+          }
+        }
+      }
+
+      if (matchedCommand) {
+        matchedCommand();
+      } else {
+        setTimeout(() => {
+          announceToUser('Command not found. Say help for available commands.');
+        }, 200);
+      }
+    }
+
+    // Navigate to external page
+    function navigateToPage(page) {
+      announceToUser(`Navigating to ${page.replace('.html', '')} page`);
+      setTimeout(() => {
+        window.location.href = page;
+      }, 1000);
+    }
+
+    // Navigate to section
+    function navigateToSection(sectionId) {
+      const section = document.getElementById(sectionId);
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth' });
+        highlightElement(section);
+        announceToUser(`Navigating to ${sectionId === 'main-content' ? 'Plan Your Journey' : sectionId} section`);
+      } else {
+        announceToUser(`Section ${sectionId} not found`);
+      }
+    }
+
+    // Start navigation for voice command
+    function startNavigationForVoice() {
+      if (currentRoute !== null) {
+        startNavigation(currentRoute);
+      } else {
+        announceToUser('No route selected. Please find a route first.');
+      }
+    }
+
+    // Stop current action
+    function stopCurrentAction() {
+      if (speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+      }
+      clearTimeout(recognitionTimeout);
+      closeMapOverlay();
+      removeHighlight();
+      announceToUser('All actions stopped');
+    }
+
+    // Highlight element
+    function highlightElement(element) {
+      removeHighlight();
+      element.classList.add('voice-highlight');
+      currentHighlight = element;
+      setTimeout(removeHighlight, 3000);
+    }
+
+    // Remove highlight
+    function removeHighlight() {
+      if (currentHighlight) {
+        currentHighlight.classList.remove('voice-highlight');
+        currentHighlight = null;
+      }
+    }
+
+    // Show help
+    function showHelp() {
+      const commandsPanel = document.getElementById('voiceCommands');
+      commandsPanel.classList.remove('hidden');
+      
+      setTimeout(() => {
+        announceToUser('Available voice commands are: Say Help to show commands. Say Navigate to plan a journey. Say Home to go to home page. Say Alerts to go to alerts page. Say Community to go to community page. Say Settings to go to settings page. Say Start Navigation to begin navigation for a selected route. Say Find Route to search for routes. Say Stop to stop current action.');
+      }, 200);
+      
+      highlightElement(commandsPanel);
+    }
+
+    // Toggle commands panel
+    function toggleCommandsPanel() {
+      const commandsPanel = document.getElementById('voiceCommands');
+      commandsPanel.classList.toggle('hidden');
+      const isVisible = !commandsPanel.classList.contains('hidden');
+      
+      setTimeout(() => {
+        announceToUser(isVisible ? 'Commands shown' : 'Commands hidden');
+      }, 200);
+    }
+
+    // Start voice mode
+    function startVoiceMode() {
+      if (!isVoiceEnabled) {
+        if (initializeSpeechRecognition()) {
+          isVoiceEnabled = true;
+          setTimeout(() => {
+            if (!isListening) {
+              try {
+                recognition.start();
+              } catch (e) {
+                console.error('Failed to start initial recognition:', e);
+              }
+            }
+          }, 500);
+        }
+      }
+    }
+
+    // Stop voice mode
+    function stopVoiceMode() {
+      isVoiceEnabled = false;
+      hasWelcomed = false;
+      if (recognition && isListening) {
+        recognition.stop();
+      }
+      speechSynthesis.cancel();
+      hideSpeechDisplay();
+      announceToUser('Voice mode deactivated');
     }
 
     function setupSpeechRecognition() {
@@ -926,16 +1359,17 @@
           <div class="flex flex-wrap gap-3">
             <button 
               onclick="startNavigation(${index})"
-              class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover-light glow-accent transition-all flex items-center"
+              class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover-light glow-accent transition-all flex items-center focusable"
               aria-label="Start navigation for ${route.name}"
               onpointerenter="announceToUser('Start Navigation')"
+              data-voice-action="start navigation"
             >
               <i class="fas fa-route mr-2" aria-hidden="true"></i>
               Start Navigation
             </button>
             <button 
               onclick="shareRoute(${index})"
-              class="glass px-6 py-3 rounded-xl font-semibold hover-light transition-all flex items-center"
+              class="glass px-6 py-3 rounded-xl font-semibold hover-light transition-all flex items-center focusable"
               aria-label="Share ${route.name}"
               onpointerenter="announceToUser('Share Route')"
             >
@@ -944,7 +1378,7 @@
             </button>
             <button 
               onclick="saveRoute(${index})"
-              class="glass px-6 py-3 rounded-xl font-semibold hover-light transition-all flex items-center"
+              class="glass px-6 py-3 rounded-xl font-semibold hover-light transition-all flex items-center focusable"
               aria-label="Save ${route.name}"
               onpointerenter="announceToUser('Save Route')"
             >
@@ -970,7 +1404,7 @@
       }, 300);
 
       if (voiceAssistanceEnabled) {
-        announceToUser(`Found ${routes.length} accessible route options. Use tab to navigate through the options.`);
+        announceToUser(`Found ${routes.length} accessible route options. Use tab to navigate through the options or say Start Navigation to begin.`);
       }
     }
 
@@ -1202,22 +1636,21 @@
 
         if (voiceAssistanceEnabled && speechSynthesis) {
           const utterance = new SpeechSynthesisUtterance(message);
-          utterance.rate = 1;
-          utterance.pitch = 1;
-          utterance.volume = 0.8;
-          utterance.lang = 'en-GB';
+          utterance.rate = 0.9;
+          utterance.pitch = 1.0;
+          utterance.volume = 1.0;
+          utterance.lang = 'en-IN';
 
-          // Use high-quality voice for perfect clarity
           const voices = speechSynthesis.getVoices();
           if (voices.length > 0) {
             const preferredVoice = voices.find(voice => 
-              voice.lang === 'en-GB' && voice.localService && voice.name.includes('Enhanced')
+              voice.lang === 'en-IN' && voice.localService && voice.name.includes('Enhanced')
             ) || voices.find(voice => 
-              voice.lang === 'en-GB' && voice.localService
+              voice.lang === 'en-IN' && voice.localService
             ) || voices.find(voice => 
               voice.lang.startsWith('en-') && voice.localService
             ) || voices.find(voice => 
-              voice.lang === 'en-GB'
+              voice.lang === 'en-IN'
             );
             
             if (preferredVoice) {
@@ -1229,7 +1662,21 @@
           speechSynthesis.speak(utterance);
           lastSpokenMessage = message;
         }
-      }, 100);
+      }, 150);
+    }
+
+    // Initialize voices
+    function initializeVoices() {
+      if (speechSynthesis) {
+        speechSynthesis.getVoices();
+        
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+          speechSynthesis.onvoiceschanged = () => {
+            const voices = speechSynthesis.getVoices();
+            console.log('Voices loaded:', voices.length);
+          };
+        }
+      }
     }
 
     document.addEventListener('keydown', (event) => {
@@ -1263,6 +1710,20 @@
     window.addEventListener('beforeunload', () => {
       if (speechRecognition) {
         speechRecognition.stop();
+      }
+      if (recognition && isListening) {
+        recognition.stop();
+      }
+      if (speechSynthesis && speechSynthesis.speaking) {
+        speechSynthesis.cancel();
+      }
+    });
+
+    // Global error handler
+    window.addEventListener('error', function(e) {
+      console.error('Global error:', e);
+      if (e.message && e.message.includes('speech')) {
+        // Suppress speech-related errors from stopping execution
       }
     });
 
