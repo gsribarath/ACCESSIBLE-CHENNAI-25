@@ -359,6 +359,23 @@
       border-radius: 4px;
     }
 
+    .listening-indicator {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(59, 130, 246, 0.95);
+      color: white;
+      padding: 20px 40px;
+      border-radius: 20px;
+      font-size: 18px;
+      font-weight: bold;
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
     @media (max-width: 768px) {
       select {
         font-size: 14px;
@@ -403,6 +420,12 @@
   </style>
 </head>
 <body class="text-white">
+  <!-- Listening Indicator -->
+  <div id="listening-indicator" class="listening-indicator">
+    <i class="fas fa-microphone mr-3"></i>
+    Listening...
+  </div>
+
   <!-- Header -->
   <header class="fixed top-0 w-full z-50 glass backdrop-blur-xl">
     <div class="max-w-7xl mx-auto px-4 py-4">
@@ -416,11 +439,9 @@
           </a>
         </div>
         <nav>
-          <a href="home.html" class="text-blue-200 hover:text-white mx-3" onpointerenter="announceToUser('Home')" aria-label="Home">Home</a>
-          <a href="navigate.html" class="text-white font-semibold mx-3" onpointerenter="announceToUser('Navigate')" aria-label="Navigate">Navigate</a>
-          <a href="community.html" class="text-blue-200 hover:text-white mx-3" onpointerenter="announceToUser('Community')" aria-label="Community">Community</a>
-          <a href="alerts.html" class="text-blue-200 hover:text-white mx-3" onpointerenter="announceToUser('Alerts')" aria-label="Alerts">Alerts</a>
-          <a href="settings.html" class="text-blue-200 hover:text-white mx-3" onpointerenter="announceToUser('Settings')" aria-label="Settings">Settings</a>
+          <a href="home.html" class="text-blue-200 hover:text-white mx-3" aria-label="Home">Home</a>
+          <a href="navigate.html" class="text-white font-semibold mx-3" aria-label="Navigate">Navigate</a>
+          <a href="alerts.html" class="text-blue-200 hover:text-white mx-3" aria-label="Alerts">Alerts</a>
         </nav>
       </div>
     </div>
@@ -431,7 +452,7 @@
     <!-- Plan Your Journey -->
     <section class="mb-12 parallax-section">
       <div class="glass-strong p-8 rounded-3xl">
-        <h2 class="text-4xl font-bold mb-6 text-center" onpointerenter="announceToUser('Plan Your Journey')">
+        <h2 class="text-4xl font-bold mb-6 text-center">
           <i class="fas fa-route text-blue-300 mr-3" aria-hidden="true"></i>
           Plan Your Journey
         </h2>
@@ -440,7 +461,7 @@
           <!-- Location Inputs -->
           <div class="grid md:grid-cols-2 gap-6">
             <div class="slide-in-left">
-              <label for="current-location" class="block text-lg font-semibold mb-3" onpointerenter="announceToUser('Start Location')">
+              <label for="current-location" class="block text-lg font-semibold mb-3">
                 <i class="fas fa-map-marker-alt text-green-400 mr-2" aria-hidden="true"></i>
                 Start Location
               </label>
@@ -449,7 +470,6 @@
                   id="current-location" 
                   class="w-full p-4 rounded-xl text-black"
                   onchange="announceSelection(this, 'Start location selected')"
-                  onpointerenter="announceToUser('Select your current location')"
                   aria-label="Select your current location"
                 >
                   <option value="" disabled selected>Select your current location</option>
@@ -483,20 +503,11 @@
                   <option value="Vadapalani">Vadapalani</option>
                   <option value="Velachery">Velachery</option>
                 </select>
-                <button 
-                  type="button" 
-                  onclick="detectLocation()" 
-                  class="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-300 hover:text-white transition-colors"
-                  aria-label="Detect current location"
-                  onpointerenter="announceToUser('Detect current location')"
-                >
-                  <i class="fas fa-location-arrow text-xl" aria-hidden="true"></i>
-                </button>
               </div>
             </div>
             
             <div class="slide-in-right">
-              <label for="destination" class="block text-lg font-semibold mb-3" onpointerenter="announceToUser('Destination')">
+              <label for="destination" class="block text-lg font-semibold mb-3">
                 <i class="fas fa-flag-checkered text-red-400 mr-2" aria-hidden="true"></i>
                 Destination
               </label>
@@ -505,7 +516,6 @@
                   id="destination" 
                   class="w-full p-4 rounded-xl text-black"
                   onchange="announceSelection(this, 'Destination selected')"
-                  onpointerenter="announceToUser('Select your destination')"
                   aria-label="Select your destination"
                 >
                   <option value="" disabled selected>Select your destination</option>
@@ -539,37 +549,28 @@
                   <option value="Vadapalani">Vadapalani</option>
                   <option value="Velachery">Velachery</option>
                 </select>
-                <button 
-                  type="button" 
-                  onclick="voiceDestinationInput()" 
-                  class="absolute right-3 top-1/2 transform -translate-y-1/2 text-blue-300 hover:text-white transition-colors"
-                  aria-label="Voice input for destination"
-                  onpointerenter="announceToUser('Voice input for destination')"
-                >
-                  <i class="fas fa-microphone text-xl" aria-hidden="true"></i>
-                </button>
               </div>
             </div>
           </div>
 
           <!-- Accessibility Requirements -->
           <div class="parallax-section">
-            <h3 class="text-2xl font-semibold mb-4" onpointerenter="announceToUser('Accessibility Requirements')">
+            <h3 class="text-2xl font-semibold mb-4">
               <i class="fas fa-universal-access text-purple-400 mr-2" aria-hidden="true"></i>
               Accessibility Requirements
             </h3>
             <div class="grid md:grid-cols-3 gap-4">
-              <label class="glass p-4 rounded-xl cursor-pointer hover-light hover:bg-blue-500/20 transition-all" onpointerenter="announceToUser('Wheelchair Access')">
+              <label class="glass p-4 rounded-xl cursor-pointer hover-light hover:bg-blue-500/20 transition-all">
                 <input type="checkbox" id="wheelchair-access" class="mr-3" onchange="announceCheckbox(this, 'Wheelchair Access')">
                 <i class="fas fa-wheelchair text-green-400 mr-2" aria-hidden="true"></i>
                 Wheelchair Access
               </label>
-              <label class="glass p-4 rounded-xl cursor-pointer hover-light hover:bg-blue-500/20 transition-all" onpointerenter="announceToUser('Voice Guide')">
+              <label class="glass p-4 rounded-xl cursor-pointer hover-light hover:bg-blue-500/20 transition-all">
                 <input type="checkbox" id="voice-guide" class="mr-3" onchange="announceCheckbox(this, 'Voice Guide')" checked>
                 <i class="fas fa-volume-up text-blue-400 mr-2" aria-hidden="true"></i>
                 Voice Guide
               </label>
-              <label class="glass p-4 rounded-xl cursor-pointer hover-light hover:bg-blue-500/20 transition-all" onpointerenter="announceToUser('Step-Free Path')">
+              <label class="glass p-4 rounded-xl cursor-pointer hover-light hover:bg-blue-500/20 transition-all">
                 <input type="checkbox" id="step-free" class="mr-3" onchange="announceCheckbox(this, 'Step-Free Path')">
                 <i class="fas fa-walking text-yellow-400 mr-2" aria-hidden="true"></i>
                 Step-Free Path
@@ -584,7 +585,6 @@
               class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-12 py-4 rounded-2xl text-xl font-bold hover-light glow-primary transition-all duration-300"
               aria-label="Find accessible route"
               onclick="announceButtonClick('Find Accessible Route')"
-              onpointerenter="announceToUser('Find Accessible Route')"
             >
               <i class="fas fa-search-location mr-3" aria-hidden="true"></i>
               <span id="route-button-text">Find Accessible Route</span>
@@ -597,7 +597,7 @@
     <!-- Route Results Section -->
     <section id="route-results" class="mb-12 hidden">
       <div class="glass-strong p-8 rounded-3xl">
-        <h3 class="text-3xl font-bold mb-6 text-center" onpointerenter="announceToUser('Your Accessible Route Options')">
+        <h3 class="text-3xl font-bold mb-6 text-center">
           <i class="fas fa-route text-blue-300 mr-3" aria-hidden="true"></i>
           Your Accessible Route Options
         </h3>
@@ -614,10 +614,10 @@
       <h3 class="text-2xl font-bold text-gray-800 mb-4">Opening Google Maps</h3>
       <p class="text-gray-600 mb-6">Your accessible route will open in Google Maps with voice navigation ready. MTC Buses and Train routes will be highlighted.</p>
       <div class="flex justify-center space-x-4">
-        <button onclick="proceedToMaps()" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors" onpointerenter="announceToUser('Continue to Google Maps')">
+        <button onclick="proceedToMaps()" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition-colors">
           Continue
         </button>
-        <button onclick="closeMapOverlay()" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition-colors" onpointerenter="announceToUser('Cancel')">
+        <button onclick="closeMapOverlay()" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition-colors">
           Cancel
         </button>
       </div>
@@ -626,21 +626,23 @@
 
   <script>
     // Global variables
-    let voiceAssistanceEnabled = true; // Enable voice assistance by default
+    let voiceAssistanceEnabled = true; 
     let currentRoute = null;
     let speechSynthesis = window.speechSynthesis;
     let speechRecognition = null;
     let lastSpokenMessage = '';
     let debounceTimeout = null;
+    let voiceGuidedFlow = {
+      step: 0,
+      isListening: false,
+      isCompleted: false
+    };
 
     // Initialize the application
     document.addEventListener('DOMContentLoaded', function() {
       initializeApp();
-      loadUserPreferences();
-      setupParallaxScrolling();
-      detectLocation();
       setupSpeechRecognition();
-      announceVoiceGuideOnboarding();
+      startVoiceGuidedFlow();
     });
 
     function initializeApp() {
@@ -653,9 +655,6 @@
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             entry.target.classList.add('visible', 'show');
-            if (voiceAssistanceEnabled) {
-              announceToUser(`Section in view: ${entry.target.querySelector('h2, h3')?.textContent || 'Content section'}`);
-            }
           }
         });
       }, observerOptions);
@@ -665,13 +664,6 @@
       });
 
       document.getElementById('journey-form').addEventListener('submit', handleRouteSearch);
-      document.getElementById('journey-form').addEventListener('click', (e) => {
-        if (e.target.closest('button[type="submit"]')) {
-          announceButtonClick('Find Accessible Route');
-        }
-      });
-
-      // Initial announcement is handled in announceVoiceGuideOnboarding
     }
 
     function setupSpeechRecognition() {
@@ -681,134 +673,394 @@
         speechRecognition.continuous = false;
         speechRecognition.interimResults = false;
         speechRecognition.lang = 'en-IN';
-      }
-    }
-
-    function setupParallaxScrolling() {
-      window.addEventListener('scroll', () => {
-        const scrolled = window.pageYOffset;
-        const parallax = document.querySelectorAll('.parallax-section');
         
-        parallax.forEach((element, index) => {
-          const rate = scrolled * -0.5;
-          element.style.transform = `translateY(${rate * 0.1}px)`;
-        });
-      });
-    }
+        speechRecognition.onstart = () => {
+          voiceGuidedFlow.isListening = true;
+          showListeningIndicator();
+        };
 
-    function loadUserPreferences() {
-      if (typeof(Storage) !== "undefined") {
-        const voiceEnabled = sessionStorage.getItem('voiceAssistanceEnabled');
-        if (voiceEnabled === 'true') {
-          voiceAssistanceEnabled = true;
-          document.getElementById('voice-guide').checked = true;
-        }
-      }
-    }
+        speechRecognition.onend = () => {
+          voiceGuidedFlow.isListening = false;
+          hideListeningIndicator();
+        };
 
-    function detectLocation() {
-      const locationSelect = document.getElementById('current-location');
-      
-      if (navigator.geolocation) {
-        locationSelect.disabled = true;
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const chennaiLocations = [
-              'Adyar', 'Alwarpet', 'Anna Nagar', 'Ashok Nagar', 'Besant Nagar', 'Chetpet',
-              'Chennai Central Railway Station', 'Chennai International Airport', 'Chromepet',
-              'Egmore', 'Express Avenue Mall', 'Guindy', 'Kilpauk', 'Kodambakkam', 'Koyambedu',
-              'Marina Beach', 'Mount Road', 'Mylapore', 'Nungambakkam', 'Perambur',
-              'Phoenix MarketCity Mall', 'Royapettah', 'Saidapet', 'T. Nagar', 'Tambaram',
-              'Teynampet', 'Thiruvanmiyur', 'Vadapalani', 'Velachery'
-            ];
-            const randomLocation = chennaiLocations[Math.floor(Math.random() * chennaiLocations.length)];
-            
-            locationSelect.value = randomLocation;
-            locationSelect.disabled = false;
-            if (voiceAssistanceEnabled) {
-              announceToUser(`Current location detected: ${randomLocation}`);
-            }
-          },
-          (error) => {
-            locationSelect.disabled = false;
-            if (voiceAssistanceEnabled) {
-              announceToUser('Could not detect your location. Please select your starting point.');
-            }
-          },
-          {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 300000
+        speechRecognition.onerror = (event) => {
+          voiceGuidedFlow.isListening = false;
+          hideListeningIndicator();
+          
+          if (event.error === 'not-allowed') {
+            announceToUser('Microphone access is required for voice guidance. Please allow microphone access and refresh the page, or use manual selection.');
+            return;
+          } else if (event.error === 'no-speech') {
+            announceToUser('No speech detected. Please try speaking again.');
+          } else if (event.error === 'network') {
+            announceToUser('Network error occurred. Please check your internet connection and try again.');
+          } else {
+            announceToUser('Voice recognition error. Please try again or use manual navigation.');
           }
-        );
+          
+          // Retry after a longer delay for other errors
+          setTimeout(() => {
+            if (event.error !== 'not-allowed') {
+              handleVoiceGuidedFlow();
+            }
+          }, 2000);
+        };
+
+        speechRecognition.onresult = (event) => {
+          const result = event.results[0][0].transcript.toLowerCase().trim();
+          console.log('Voice input received:', result);
+          processVoiceInput(result);
+        };
       } else {
-        if (voiceAssistanceEnabled) {
-          announceToUser('Geolocation not supported on this device. Please select your location.');
-        }
+        announceToUser('Voice recognition not supported on this browser. Please use manual navigation.');
       }
     }
 
-    function voiceDestinationInput() {
-      if (!speechRecognition) {
-        if (voiceAssistanceEnabled) {
-          announceToUser('Voice input not supported on this browser. Please select your destination.');
-        }
-        return;
-      }
-
-      const destinationSelect = document.getElementById('destination');
-      const micButton = event.target.closest('button');
-      
-      micButton.innerHTML = '<i class="fas fa-circle text-red-500 animate-pulse"></i>';
-      if (voiceAssistanceEnabled) {
-        announceToUser('Listening for your destination. Please speak clearly.');
-      }
-
-      speechRecognition.onstart = () => {
-        destinationSelect.disabled = true;
-        destinationSelect.style.border = '2px solid #ef4444';
-      };
-
-      speechRecognition.onresult = (event) => {
-        const result = event.results[0][0].transcript;
-        const chennaiLocations = [
-          'Adyar', 'Alwarpet', 'Anna Nagar', 'Ashok Nagar', 'Besant Nagar', 'Chetpet',
-          'Chennai Central Railway Station', 'Chennai International Airport', 'Chromepet',
-          'Egmore', 'Express Avenue Mall', 'Guindy', 'Kilpauk', 'Kodambakkam', 'Koyambedu',
-          'Marina Beach', 'Mount Road', 'Mylapore', 'Nungambakkam', 'Perambur',
-          'Phoenix MarketCity Mall', 'Royapettah', 'Saidapet', 'T. Nagar', 'Tambaram',
-          'Teynampet', 'Thiruvanmiyur', 'Vadapalani', 'Velachery'
-        ];
-        const matchedLocation = chennaiLocations.find(loc => 
-          loc.toLowerCase().includes(result.toLowerCase())
-        ) || result;
+    function startVoiceGuidedFlow() {
+      setTimeout(() => {
+        announceToUser('WELCOME TO THE NAVIGATE PAGE. I AM HERE TO HELP YOU.');
         
-        destinationSelect.value = matchedLocation;
-        destinationSelect.style.border = '2px solid #10b981';
-        if (voiceAssistanceEnabled) {
-          announceToUser(`Destination set to: ${matchedLocation}`);
+        // Request microphone permission first
+        if (speechRecognition) {
+          navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(() => {
+              announceToUser('Microphone access granted. Voice guidance is ready.');
+              setTimeout(() => {
+                voiceGuidedFlow.step = 1;
+                handleVoiceGuidedFlow();
+              }, 2000);
+            })
+            .catch(() => {
+              announceToUser('Microphone access denied. You can still use this page manually.');
+              setTimeout(() => {
+                voiceGuidedFlow.step = 1;
+                handleVoiceGuidedFlow();
+              }, 3000);
+            });
+        } else {
+          setTimeout(() => {
+            voiceGuidedFlow.step = 1;
+            handleVoiceGuidedFlow();
+          }, 3000);
         }
-        destinationSelect.disabled = false;
-      };
+      }, 1000);
+    }
 
-      speechRecognition.onerror = () => {
-        if (voiceAssistanceEnabled) {
-          announceToUser('Voice recognition error. Please try again or select your destination.');
+    function handleVoiceGuidedFlow() {
+      if (voiceGuidedFlow.isCompleted) return;
+
+      switch (voiceGuidedFlow.step) {
+        case 1:
+          askForStartLocation();
+          break;
+        case 2:
+          askForDestination();
+          break;
+        case 3:
+          askForAccessibilityRequirements();
+          break;
+        case 4:
+          askForRouteConfirmation();
+          break;
+        default:
+          break;
+      }
+    }
+
+    function askForStartLocation() {
+      announceToUser('Please tell me your starting location. You can say any location in Chennai like Anna Nagar, T Nagar, Marina Beach, or any other area.');
+      setTimeout(() => {
+        if (speechRecognition && !voiceGuidedFlow.isListening) {
+          try {
+            speechRecognition.start();
+          } catch (error) {
+            announceToUser('Voice input not available. Please select the start location manually.');
+          }
         }
-        resetVoiceInput();
-      };
+      }, 4000);
+    }
 
-      speechRecognition.onend = () => {
-        resetVoiceInput();
-      };
+    function askForDestination() {
+      announceToUser('Great! Now please tell me your destination. Where would you like to go in Chennai?');
+      setTimeout(() => {
+        if (speechRecognition && !voiceGuidedFlow.isListening) {
+          try {
+            speechRecognition.start();
+          } catch (error) {
+            announceToUser('Voice input not available. Please select the destination manually.');
+          }
+        }
+      }, 3000);
+    }
 
-      function resetVoiceInput() {
-        micButton.innerHTML = '<i class="fas fa-microphone text-xl"></i>';
-        destinationSelect.style.border = '';
-        destinationSelect.disabled = false;
+    function askForAccessibilityRequirements() {
+      announceToUser('Now I need to know your accessibility requirements. Please tell me which of these you need: Wheelchair Access, Voice Guide, or Step-Free Path. You can say multiple options or say none if you dont need any special requirements.');
+      setTimeout(() => {
+        if (speechRecognition && !voiceGuidedFlow.isListening) {
+          try {
+            speechRecognition.start();
+          } catch (error) {
+            announceToUser('Voice input not available. Please select accessibility options manually.');
+          }
+        }
+      }, 6000);
+    }
+
+    function askForRouteConfirmation() {
+      announceToUser('Perfect! All information is collected. Are you willing to find accessible route? Please say yes to continue or no to start over.');
+      setTimeout(() => {
+        if (speechRecognition && !voiceGuidedFlow.isListening) {
+          try {
+            speechRecognition.start();
+          } catch (error) {
+            announceToUser('Voice input not available. Please press Enter on the Find Accessible Route button to continue, or press Ctrl+Space to start over.');
+          }
+        }
+      }, 4000);
+    }
+
+    function processVoiceInput(input) {
+      const chennaiLocations = [
+        'adyar', 'alwarpet', 'anna nagar', 'ashok nagar', 'besant nagar', 'chetpet',
+        'chennai central railway station', 'central', 'chennai international airport', 'airport', 'chromepet',
+        'egmore', 'express avenue mall', 'express avenue', 'guindy', 'kilpauk', 'kodambakkam', 'koyambedu',
+        'marina beach', 'marina', 'mount road', 'mylapore', 'nungambakkam', 'perambur',
+        'phoenix marketcity mall', 'phoenix mall', 'royapettah', 'saidapet', 't nagar', 't. nagar', 'tambaram',
+        'teynampet', 'thiruvanmiyur', 'vadapalani', 'velachery'
+      ];
+
+      switch (voiceGuidedFlow.step) {
+        case 1: // Start location
+          const startLocation = findBestMatch(input, chennaiLocations);
+          if (startLocation) {
+            setStartLocation(startLocation);
+            voiceGuidedFlow.step = 2;
+            setTimeout(() => handleVoiceGuidedFlow(), 1500);
+          } else {
+            announceToUser('I could not understand the location. Please try again with a Chennai location like Anna Nagar or T Nagar.');
+            setTimeout(() => {
+              if (speechRecognition && !voiceGuidedFlow.isListening) {
+                try {
+                  speechRecognition.start();
+                } catch (error) {
+                  announceToUser('Voice input failed. Please select the start location manually.');
+                }
+              }
+            }, 3000);
+          }
+          break;
+
+        case 2: // Destination
+          const destination = findBestMatch(input, chennaiLocations);
+          if (destination) {
+            setDestination(destination);
+            voiceGuidedFlow.step = 3;
+            setTimeout(() => handleVoiceGuidedFlow(), 1500);
+          } else {
+            announceToUser('I could not understand the destination. Please try again with a Chennai location.');
+            setTimeout(() => {
+              if (speechRecognition && !voiceGuidedFlow.isListening) {
+                try {
+                  speechRecognition.start();
+                } catch (error) {
+                  announceToUser('Voice input failed. Please select the destination manually.');
+                }
+              }
+            }, 3000);
+          }
+          break;
+
+        case 3: // Accessibility requirements
+          setAccessibilityRequirements(input);
+          voiceGuidedFlow.step = 4;
+          setTimeout(() => handleVoiceGuidedFlow(), 2000);
+          break;
+
+        case 4: // Route confirmation
+          if (input.includes('yes') || input.includes('yeah') || input.includes('proceed') || input.includes('continue')) {
+            voiceGuidedFlow.isCompleted = true;
+            announceToUser('Excellent! Searching for your accessible routes now.');
+            setTimeout(() => {
+              document.getElementById('journey-form').dispatchEvent(new Event('submit'));
+            }, 2000);
+          } else if (input.includes('no') || input.includes('start over') || input.includes('restart')) {
+            announceToUser('STARTING FROM FIRST');
+            restartVoiceGuidedFlow();
+          } else {
+            announceToUser('Please say yes to find routes or no to start over.');
+            setTimeout(() => {
+              if (speechRecognition && !voiceGuidedFlow.isListening) {
+                try {
+                  speechRecognition.start();
+                } catch (error) {
+                  announceToUser('Voice input failed. Please press Enter on the Find Accessible Route button to continue.');
+                }
+              }
+            }, 2000);
+          }
+          break;
+      }
+    }
+
+    function findBestMatch(input, locations) {
+      // Direct match
+      for (let location of locations) {
+        if (input.includes(location)) {
+          return formatLocationName(location);
+        }
       }
 
-      speechRecognition.start();
+      // Fuzzy matching for common variations
+      const variations = {
+        'anna nagar': ['anna', 'annanagar'],
+        't nagar': ['t.nagar', 'tnagar', 'tee nagar'],
+        'marina beach': ['marina'],
+        'chennai central railway station': ['central', 'central station'],
+        'chennai international airport': ['airport'],
+        'express avenue mall': ['express avenue', 'express'],
+        'phoenix marketcity mall': ['phoenix', 'phoenix mall'],
+        'besant nagar': ['besant'],
+        'thiruvanmiyur': ['thiruvamiyur', 'thiruvanmiyoor']
+      };
+
+      for (let [location, alts] of Object.entries(variations)) {
+        for (let alt of alts) {
+          if (input.includes(alt)) {
+            return formatLocationName(location);
+          }
+        }
+      }
+
+      return null;
+    }
+
+    function formatLocationName(location) {
+      const locationMap = {
+        'adyar': 'Adyar',
+        'alwarpet': 'Alwarpet',
+        'anna nagar': 'Anna Nagar',
+        'ashok nagar': 'Ashok Nagar',
+        'besant nagar': 'Besant Nagar',
+        'chetpet': 'Chetpet',
+        'chennai central railway station': 'Chennai Central Railway Station',
+        'central': 'Chennai Central Railway Station',
+        'chennai international airport': 'Chennai International Airport',
+        'airport': 'Chennai International Airport',
+        'chromepet': 'Chromepet',
+        'egmore': 'Egmore',
+        'express avenue mall': 'Express Avenue Mall',
+        'express avenue': 'Express Avenue Mall',
+        'guindy': 'Guindy',
+        'kilpauk': 'Kilpauk',
+        'kodambakkam': 'Kodambakkam',
+        'koyambedu': 'Koyambedu',
+        'marina beach': 'Marina Beach',
+        'marina': 'Marina Beach',
+        'mount road': 'Mount Road',
+        'mylapore': 'Mylapore',
+        'nungambakkam': 'Nungambakkam',
+        'perambur': 'Perambur',
+        'phoenix marketcity mall': 'Phoenix MarketCity Mall',
+        'phoenix mall': 'Phoenix MarketCity Mall',
+        'royapettah': 'Royapettah',
+        'saidapet': 'Saidapet',
+        't nagar': 'T. Nagar',
+        't. nagar': 'T. Nagar',
+        'tambaram': 'Tambaram',
+        'teynampet': 'Teynampet',
+        'thiruvanmiyur': 'Thiruvanmiyur',
+        'vadapalani': 'Vadapalani',
+        'velachery': 'Velachery'
+      };
+
+      return locationMap[location] || location;
+    }
+
+    function setStartLocation(location) {
+      const startSelect = document.getElementById('current-location');
+      startSelect.value = location;
+      announceToUser(`Start location set to ${location}.`);
+    }
+
+    function setDestination(location) {
+      const destSelect = document.getElementById('destination');
+      destSelect.value = location;
+      announceToUser(`Destination set to ${location}.`);
+    }
+
+    function setAccessibilityRequirements(input) {
+      const wheelchairCheckbox = document.getElementById('wheelchair-access');
+      const voiceGuideCheckbox = document.getElementById('voice-guide');
+      const stepFreeCheckbox = document.getElementById('step-free');
+
+      // Reset all checkboxes first
+      wheelchairCheckbox.checked = false;
+      stepFreeCheckbox.checked = false;
+      // Keep voice guide enabled by default
+      voiceGuideCheckbox.checked = true;
+
+      let selectedOptions = [];
+
+      if (input.includes('wheelchair') || input.includes('wheel chair')) {
+        wheelchairCheckbox.checked = true;
+        selectedOptions.push('Wheelchair Access');
+      }
+
+      if (input.includes('voice guide') || input.includes('voice') || input.includes('audio')) {
+        voiceGuideCheckbox.checked = true;
+        if (!selectedOptions.includes('Voice Guide')) {
+          selectedOptions.push('Voice Guide');
+        }
+      }
+
+      if (input.includes('step free') || input.includes('step-free') || input.includes('no steps')) {
+        stepFreeCheckbox.checked = true;
+        selectedOptions.push('Step-Free Path');
+      }
+
+      if (input.includes('none') || input.includes('no requirements') || input.includes('nothing')) {
+        wheelchairCheckbox.checked = false;
+        stepFreeCheckbox.checked = false;
+        selectedOptions = [];
+      }
+
+      // Always keep voice guide enabled
+      if (!voiceGuideCheckbox.checked) {
+        voiceGuideCheckbox.checked = true;
+        selectedOptions.push('Voice Guide');
+      }
+
+      const message = selectedOptions.length > 0 
+        ? `Accessibility requirements set: ${selectedOptions.join(', ')}.`
+        : 'No special accessibility requirements selected. Voice Guide remains enabled.';
+      
+      announceToUser(message);
+    }
+
+    function restartVoiceGuidedFlow() {
+      voiceGuidedFlow.step = 1;
+      voiceGuidedFlow.isCompleted = false;
+      
+      // Reset form
+      document.getElementById('current-location').value = '';
+      document.getElementById('destination').value = '';
+      document.getElementById('wheelchair-access').checked = false;
+      document.getElementById('voice-guide').checked = true;
+      document.getElementById('step-free').checked = false;
+      
+      // Hide route results if visible
+      document.getElementById('route-results').classList.add('hidden');
+      
+      setTimeout(() => handleVoiceGuidedFlow(), 2000);
+    }
+
+    function showListeningIndicator() {
+      document.getElementById('listening-indicator').style.display = 'block';
+    }
+
+    function hideListeningIndicator() {
+      document.getElementById('listening-indicator').style.display = 'none';
     }
 
     function announceSelection(element, type) {
@@ -835,28 +1087,15 @@
       const currentLocation = document.getElementById('current-location').value;
       const destination = document.getElementById('destination').value;
       
-      if (!destination) {
-        if (voiceAssistanceEnabled) {
-          announceToUser('Please select your destination before searching for routes.');
-        }
-        document.getElementById('destination').focus();
-        return;
-      }
-
-      if (!currentLocation) {
-        if (voiceAssistanceEnabled) {
-          announceToUser('Please select your starting location before searching for routes.');
-        }
-        document.getElementById('current-location').focus();
+      if (!destination || !currentLocation) {
+        announceToUser('Please ensure both start location and destination are selected.');
         return;
       }
 
       const routeButton = document.getElementById('route-button-text');
       routeButton.innerHTML = '<div class="loading-spinner mr-2"></div> Finding Routes...';
       
-      if (voiceAssistanceEnabled) {
-        announceToUser('Searching for accessible routes. Please wait...');
-      }
+      announceToUser('Searching for accessible routes. Please wait...');
 
       setTimeout(() => {
         displayRouteOptions(currentLocation, destination);
@@ -877,7 +1116,7 @@
       const routes = generateRoutes(start, end, accessibilityOptions);
       
       routeCards.innerHTML = routes.map((route, index) => `
-        <div class="route-card glass-strong p-6 rounded-2xl hover-light" data-route-index="${index}" onpointerenter="announceToUser('${route.name}')">
+        <div class="route-card glass-strong p-6 rounded-2xl hover-light" data-route-index="${index}">
           <div class="flex justify-between items-start mb-4">
             <div>
               <h4 class="text-2xl font-bold text-blue-300 mb-2">
@@ -928,7 +1167,6 @@
               onclick="startNavigation(${index})"
               class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl font-semibold hover-light glow-accent transition-all flex items-center"
               aria-label="Start navigation for ${route.name}"
-              onpointerenter="announceToUser('Start Navigation')"
             >
               <i class="fas fa-route mr-2" aria-hidden="true"></i>
               Start Navigation
@@ -937,7 +1175,6 @@
               onclick="shareRoute(${index})"
               class="glass px-6 py-3 rounded-xl font-semibold hover-light transition-all flex items-center"
               aria-label="Share ${route.name}"
-              onpointerenter="announceToUser('Share Route')"
             >
               <i class="fas fa-share-alt mr-2" aria-hidden="true"></i>
               Share Route
@@ -946,7 +1183,6 @@
               onclick="saveRoute(${index})"
               class="glass px-6 py-3 rounded-xl font-semibold hover-light transition-all flex items-center"
               aria-label="Save ${route.name}"
-              onpointerenter="announceToUser('Save Route')"
             >
               <i class="fas fa-bookmark mr-2" aria-hidden="true"></i>
               Save Route
@@ -962,16 +1198,19 @@
         document.querySelectorAll('.route-card').forEach((card, index) => {
           setTimeout(() => {
             card.classList.add('show');
-            if (voiceAssistanceEnabled) {
-              announceToUser(`Route option ${index + 1}: ${card.querySelector('h4').textContent}`);
-            }
           }, index * 200);
         });
+        
+        // Announce all route options
+        setTimeout(() => {
+          let routeAnnouncement = `Found ${routes.length} accessible route options. `;
+          routes.forEach((route, index) => {
+            routeAnnouncement += `Option ${index + 1}: ${route.name}, Duration ${route.duration}, Accessibility rating ${route.accessibilityRating} out of 5 stars. `;
+          });
+          routeAnnouncement += 'You can now choose to start navigation for any route.';
+          announceToUser(routeAnnouncement);
+        }, 1000);
       }, 300);
-
-      if (voiceAssistanceEnabled) {
-        announceToUser(`Found ${routes.length} accessible route options. Use tab to navigate through the options.`);
-      }
     }
 
     function generateRoutes(start, end, options) {
@@ -1061,11 +1300,7 @@
       
       currentRoute = routeIndex;
       
-      if (voiceAssistanceEnabled) {
-        announceToUser('Starting Navigation. Opening Google Maps with voice guidance enabled...');
-      } else {
-        announceToUser('Starting Navigation. Opening Google Maps...');
-      }
+      announceToUser('Starting Navigation. Opening Google Maps with voice guidance enabled...');
 
       document.getElementById('map-overlay').style.display = 'flex';
       
@@ -1088,18 +1323,14 @@
       
       window.open(mapsUrl, '_blank');
       
-      if (voiceAssistanceEnabled) {
-        announceToUser('Google Maps opened with your accessible route. MTC Buses and Train routes are highlighted with voice navigation ready.');
-      }
+      announceToUser('Google Maps opened with your accessible route. MTC Buses and Train routes are highlighted with voice navigation ready.');
       
       closeMapOverlay();
     }
 
     function closeMapOverlay() {
       document.getElementById('map-overlay').style.display = 'none';
-      if (voiceAssistanceEnabled) {
-        announceToUser('Map overlay closed.');
-      }
+      announceToUser('Map overlay closed.');
     }
 
     function shareRoute(routeIndex) {
@@ -1111,9 +1342,7 @@
           text: shareText,
           url: window.location.href
         }).then(() => {
-          if (voiceAssistanceEnabled) {
-            announceToUser('Route shared successfully!');
-          }
+          announceToUser('Route shared successfully!');
         }).catch(() => {
           fallbackShare(shareText);
         });
@@ -1126,14 +1355,10 @@
       if (navigator.clipboard) {
         const shareUrl = `${window.location.href}?route=${currentRoute}`;
         navigator.clipboard.writeText(`${text} ${shareUrl}`).then(() => {
-          if (voiceAssistanceEnabled) {
-            announceToUser('Route link copied to clipboard!');
-          }
+          announceToUser('Route link copied to clipboard!');
         });
       } else {
-        if (voiceAssistanceEnabled) {
-          announceToUser('Sharing not supported. You can manually copy the page URL to share.');
-        }
+        announceToUser('Sharing not supported. You can manually copy the page URL to share.');
       }
     }
 
@@ -1141,7 +1366,7 @@
       const routeName = document.querySelector(`[data-route-index="${routeIndex}"] h4`).textContent.trim();
       
       if (typeof(Storage) !== "undefined") {
-        let savedRoutes = JSON.parse(localStorage.getItem('savedRoutes') || '[]');
+        let savedRoutes = JSON.parse(sessionStorage.getItem('savedRoutes') || '[]');
         const routeData = {
           index: routeIndex,
           name: routeName,
@@ -1151,34 +1376,11 @@
         };
         
         savedRoutes.push(routeData);
-        localStorage.setItem('savedRoutes', JSON.stringify(savedRoutes));
+        sessionStorage.setItem('savedRoutes', JSON.stringify(savedRoutes));
         
-        if (voiceAssistanceEnabled) {
-          announceToUser(`Route "${routeName}" saved to your favorites!`);
-        }
+        announceToUser(`Route "${routeName}" saved to your favorites!`);
       } else {
-        if (voiceAssistanceEnabled) {
-          announceToUser('Route saved! (Note: Browser storage not available)');
-        }
-      }
-    }
-
-    function announceVoiceGuideOnboarding() {
-      if (localStorage.getItem('voiceGuideOnboarded') !== 'true') {
-        const welcomeMessage = 'Welcome to Navigate page. I am here to help you.';
-        const optionsMessage = [
-          'Available options on this page include:',
-          'Navigation links: Home, Navigate, Community, Alerts, Settings.',
-          'Plan Your Journey section with:',
-          '- Start Location dropdown to select your current location or use the Detect Location button.',
-          '- Destination dropdown to select your destination or use voice input.',
-          'Accessibility Requirements with checkboxes for Wheelchair Access, Voice Guide (currently enabled), and Step-Free Path.',
-          'Find Accessible Route button to search for routes.',
-          'Use Tab to navigate through options or voice commands like "Navigate to destination" to select a destination.'
-        ].join(' ');
-
-        announceToUser(`${welcomeMessage} ${optionsMessage}`);
-        localStorage.setItem('voiceGuideOnboarded', 'true');
+        announceToUser('Route saved! (Note: Browser storage not available)');
       }
     }
 
@@ -1189,25 +1391,13 @@
       debounceTimeout = setTimeout(() => {
         speechSynthesis.cancel();
         
-        const announcement = document.createElement('div');
-        announcement.setAttribute('aria-live', 'polite');
-        announcement.setAttribute('aria-atomic', 'true');
-        announcement.className = 'sr-only';
-        announcement.textContent = message;
-        document.body.appendChild(announcement);
-        
-        setTimeout(() => {
-          document.body.removeChild(announcement);
-        }, 1000);
-
         if (voiceAssistanceEnabled && speechSynthesis) {
           const utterance = new SpeechSynthesisUtterance(message);
-          utterance.rate = 1;
+          utterance.rate = 0.9;
           utterance.pitch = 1;
-          utterance.volume = 0.8;
+          utterance.volume = 1;
           utterance.lang = 'en-GB';
 
-          // Use high-quality voice for perfect clarity
           const voices = speechSynthesis.getVoices();
           if (voices.length > 0) {
             const preferredVoice = voices.find(voice => 
@@ -1222,55 +1412,43 @@
             
             if (preferredVoice) {
               utterance.voice = preferredVoice;
-              console.log('Using voice:', preferredVoice.name);
             }
           }
 
           speechSynthesis.speak(utterance);
           lastSpokenMessage = message;
         }
-      }, 100);
+      }, 150);
     }
 
+    // Keyboard shortcuts
     document.addEventListener('keydown', (event) => {
-      if (event.altKey && event.key === 'l') {
-        event.preventDefault();
-        detectLocation();
-      }
-      
-      if (event.altKey && event.key === 's') {
-        event.preventDefault();
-        voiceDestinationInput();
-      }
-      
       if (event.key === 'Escape') {
         closeMapOverlay();
       }
+      
+      // Space bar to restart voice flow
+      if (event.key === ' ' && event.ctrlKey) {
+        event.preventDefault();
+        announceToUser('Restarting voice guided flow.');
+        restartVoiceGuidedFlow();
+      }
     });
 
+    // Focus management
     window.addEventListener('focus', (event) => {
       if (event.target.matches('button, input, select, textarea, a')) {
         event.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        if (voiceAssistanceEnabled) {
-          const label = event.target.getAttribute('aria-label') || 
-                       event.target.textContent.trim() || 
-                       'Focused element';
-          announceToUser(`Focused: ${label}`);
-        }
       }
     }, true);
 
+    // Cleanup on page unload
     window.addEventListener('beforeunload', () => {
       if (speechRecognition) {
         speechRecognition.stop();
       }
+      speechSynthesis.cancel();
     });
-
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => {
-        console.log('Service worker registration failed - offline features may not work');
-      });
-    }
   </script> 
 </body>
 </html>
