@@ -420,12 +420,6 @@
   </style>
 </head>
 <body class="text-white">
-  <!-- Listening Indicator -->
-  <div id="listening-indicator" class="listening-indicator">
-    <i class="fas fa-microphone mr-3"></i>
-    Listening...
-  </div>
-
   <!-- Header -->
   <header class="fixed top-0 w-full z-50 glass backdrop-blur-xl">
     <div class="max-w-7xl mx-auto px-4 py-4">
@@ -469,7 +463,6 @@
                 <select 
                   id="current-location" 
                   class="w-full p-4 rounded-xl text-black"
-                  onchange="announceSelection(this, 'Start location selected')"
                   aria-label="Select your current location"
                 >
                   <option value="" disabled selected>Select your current location</option>
@@ -515,7 +508,6 @@
                 <select 
                   id="destination" 
                   class="w-full p-4 rounded-xl text-black"
-                  onchange="announceSelection(this, 'Destination selected')"
                   aria-label="Select your destination"
                 >
                   <option value="" disabled selected>Select your destination</option>
@@ -561,17 +553,17 @@
             </h3>
             <div class="grid md:grid-cols-3 gap-4">
               <label class="glass p-4 rounded-xl cursor-pointer hover-light hover:bg-blue-500/20 transition-all">
-                <input type="checkbox" id="wheelchair-access" class="mr-3" onchange="announceCheckbox(this, 'Wheelchair Access')">
+                <input type="checkbox" id="wheelchair-access" class="mr-3">
                 <i class="fas fa-wheelchair text-green-400 mr-2" aria-hidden="true"></i>
                 Wheelchair Access
               </label>
               <label class="glass p-4 rounded-xl cursor-pointer hover-light hover:bg-blue-500/20 transition-all">
-                <input type="checkbox" id="voice-guide" class="mr-3" onchange="announceCheckbox(this, 'Voice Guide')" checked>
+                <input type="checkbox" id="voice-guide" class="mr-3" checked>
                 <i class="fas fa-volume-up text-blue-400 mr-2" aria-hidden="true"></i>
                 Voice Guide
               </label>
               <label class="glass p-4 rounded-xl cursor-pointer hover-light hover:bg-blue-500/20 transition-all">
-                <input type="checkbox" id="step-free" class="mr-3" onchange="announceCheckbox(this, 'Step-Free Path')">
+                <input type="checkbox" id="step-free" class="mr-3">
                 <i class="fas fa-walking text-yellow-400 mr-2" aria-hidden="true"></i>
                 Step-Free Path
               </label>
@@ -584,7 +576,6 @@
               type="submit" 
               class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-12 py-4 rounded-2xl text-xl font-bold hover-light glow-primary transition-all duration-300"
               aria-label="Find accessible route"
-              onclick="announceButtonClick('Find Accessible Route')"
             >
               <i class="fas fa-search-location mr-3" aria-hidden="true"></i>
               <span id="route-button-text">Find Accessible Route</span>
@@ -626,25 +617,20 @@
 
   <script>
     // Global variables
-    let voiceAssistanceEnabled = true; 
-    let currentRoute = null;
     let speechSynthesis = window.speechSynthesis;
     let speechRecognition = null;
-    let lastSpokenMessage = '';
-    let debounceTimeout = null;
-    let routeOptionsShown = false;
-    let availableRoutes = [];
-    let voiceGuidedFlow = {
-      step: 0,
-      isListening: false,
-      isCompleted: false
+    let currentRoute = null;
+    let voiceInteractionState = {
+      isActive: true,
+      currentStep: 0, // 0: initial, 1: start location, 2: destination, 3: route selection
+      listening: false
     };
 
     // Initialize the application
     document.addEventListener('DOMContentLoaded', function() {
       initializeApp();
       setupSpeechRecognition();
-      startVoiceGuidedFlow();
+      startVoiceInteraction();
     });
 
     function initializeApp() {
@@ -676,121 +662,70 @@
         speechRecognition.interimResults = false;
         speechRecognition.lang = 'en-IN';
         
-        speechRecognition.onstart = () => {
-          voiceGuidedFlow.isListening = true;
-          showListeningIndicator();
-        };
-
-        speechRecognition.onend = () => {
-          voiceGuidedFlow.isListening = false;
-          hideListeningIndicator();
-          // Restart recognition to keep it continuous
-          if (voiceAssistanceEnabled && speechRecognition) {
-            setTimeout(() => {
-              try {
-                speechRecognition.start();
-              } catch (error) {
-                // Silent error handling
-              }
-            }, 100);
-          }
+        speechRecognition.onresult = (event) => {
+          const result = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
+          processVoiceCommand(result);
         };
 
         speechRecognition.onerror = (event) => {
-          voiceGuidedFlow.isListening = false;
-          hideListeningIndicator();
-          
           if (event.error === 'not-allowed') {
-            return;
+            voiceInteractionState.isActive = false;
           }
-          
-          // Restart recognition after error
-          setTimeout(() => {
-            if (voiceAssistanceEnabled && speechRecognition) {
-              try {
-                speechRecognition.start();
-              } catch (error) {
-                // Silent error handling
-              }
-            }
-          }, 1000);
-        };
-
-        speechRecognition.onresult = (event) => {
-          const result = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
-          console.log('Voice input received:', result);
-          processVoiceInput(result);
         };
       }
     }
 
-    function startVoiceGuidedFlow() {
-      setTimeout(() => {
-        announceToUser('WELCOME TO THE NAVIGATE PAGE. I AM HERE TO HELP YOU.');
-        
-        // Start speech recognition without asking for permission
-        if (speechRecognition) {
-          setTimeout(() => {
-            try {
-              speechRecognition.start();
-            } catch (error) {
-              // Silent error handling
-            }
-          }, 2000);
+    function startVoiceInteraction() {
+      // Initial welcome message
+      speakMessage("WELCOME TO THE NAVIGATE PAGE. I AM HERE TO HELP YOU.");
+      
+      // Start listening in background
+      if (speechRecognition) {
+        try {
+          speechRecognition.start();
+        } catch (e) {
+          console.log("Speech recognition not available");
         }
-        
-        setTimeout(() => {
-          voiceGuidedFlow.step = 1;
-          handleVoiceGuidedFlow();
-        }, 3000);
-      }, 1000);
-    }
-
-    function handleVoiceGuidedFlow() {
-      if (voiceGuidedFlow.isCompleted) return;
-
-      switch (voiceGuidedFlow.step) {
-        case 1:
-          askForStartLocation();
-          break;
-        case 2:
-          askForDestination();
-          break;
-        case 3:
-          askForAccessibilityRequirements();
-          break;
-        case 4:
-          askForRouteConfirmation();
-          break;
-        case 5:
-          askForOptionSelection();
-          break;
-        default:
-          break;
       }
+
+      // Ask for start location after initial message
+      setTimeout(() => {
+        askForStartLocation();
+      }, 3000);
     }
 
     function askForStartLocation() {
-      announceToUser('Please tell me your starting location. You can say any location in Chennai like Anna Nagar, T Nagar, Marina Beach, or any other area.');
+      voiceInteractionState.currentStep = 1;
+      speakMessage("PLEASE SELECT YOUR CURRENT LOCATION.");
     }
 
     function askForDestination() {
-      announceToUser('Great! Now please tell me your destination. Where would you like to go in Chennai?');
+      voiceInteractionState.currentStep = 2;
+      speakMessage("PLEASE SELECT YOUR DESTINATION.");
     }
 
-    function askForAccessibilityRequirements() {
-      announceToUser('Now I need to know your accessibility requirements. Please tell me which of these you need: Wheelchair Access, Voice Guide, or Step-Free Path. You can say multiple options or say none if you dont need any special requirements.');
+    function confirmLocationsSelected() {
+      speakMessage("CURRENT LOCATION AND DESTINATION SELECTED SUCCESSFULLY.");
+      
+      // Auto-submit the form if both locations are selected
+      const start = document.getElementById('current-location').value;
+      const dest = document.getElementById('destination').value;
+      
+      if (start && dest) {
+        setTimeout(() => {
+          document.getElementById('journey-form').dispatchEvent(new Event('submit'));
+        }, 2000);
+      }
     }
 
-    function askForRouteConfirmation() {
-      announceToUser('Perfect! All information is collected. Are you willing to find accessible route? Please say yes to continue or no to start over.');
+    function askForRouteSelection() {
+      voiceInteractionState.currentStep = 3;
+      speakMessage("PLEASE SELECT THE OPTION.");
     }
 
-    function askForOptionSelection() {
-      announceToUser('Please select one of the route options. Say option 1, option 2, or option 3 to choose your preferred route.');
-    }
+    function processVoiceCommand(input) {
+      if (!voiceInteractionState.isActive) return;
 
-    function processVoiceInput(input) {
       const chennaiLocations = [
         'adyar', 'alwarpet', 'anna nagar', 'ashok nagar', 'besant nagar', 'chetpet',
         'chennai central railway station', 'central', 'chennai international airport', 'airport', 'chromepet',
@@ -800,32 +735,12 @@
         'teynampet', 'thiruvanmiyur', 'vadapalani', 'velachery'
       ];
 
-      // Check for option selection first
-      if (routeOptionsShown && voiceGuidedFlow.step === 5) {
-        if (input.includes('option 1') || input.includes('option one') || input.includes('first option')) {
-          startNavigation(0);
-          return;
-        } else if (input.includes('option 2') || input.includes('option two') || input.includes('second option')) {
-          startNavigation(1);
-          return;
-        } else if (input.includes('option 3') || input.includes('option three') || input.includes('third option')) {
-          startNavigation(2);
-          return;
-        } else {
-          announceToUser('Please say option 1, option 2, or option 3 to select your preferred route.');
-          return;
-        }
-      }
-
-      switch (voiceGuidedFlow.step) {
+      switch (voiceInteractionState.currentStep) {
         case 1: // Start location
           const startLocation = findBestMatch(input, chennaiLocations);
           if (startLocation) {
             setStartLocation(startLocation);
-            voiceGuidedFlow.step = 2;
-            setTimeout(() => handleVoiceGuidedFlow(), 1500);
-          } else {
-            announceToUser('I could not understand the location. Please try again with a Chennai location like Anna Nagar or T Nagar.');
+            askForDestination();
           }
           break;
 
@@ -833,44 +748,19 @@
           const destination = findBestMatch(input, chennaiLocations);
           if (destination) {
             setDestination(destination);
-            // Check if both locations are selected
-            checkBothLocationsSelected();
-          } else {
-            announceToUser('I could not understand the destination. Please try again with a Chennai location.');
+            confirmLocationsSelected();
           }
           break;
 
-        case 3: // Accessibility requirements
-          setAccessibilityRequirements(input);
-          voiceGuidedFlow.step = 4;
-          setTimeout(() => handleVoiceGuidedFlow(), 2000);
-          break;
-
-        case 4: // Route confirmation
-          if (input.includes('yes') || input.includes('yeah') || input.includes('proceed') || input.includes('continue')) {
-            voiceGuidedFlow.isCompleted = true;
-            announceToUser('Excellent! Searching for your accessible routes now.');
-            setTimeout(() => {
-              document.getElementById('journey-form').dispatchEvent(new Event('submit'));
-            }, 2000);
-          } else if (input.includes('no') || input.includes('start over') || input.includes('restart')) {
-            announceToUser('Starting from first.');
-            restartVoiceGuidedFlow();
-          } else {
-            announceToUser('Please say yes to find routes or no to start over.');
+        case 3: // Route selection
+          if (input.includes('option 1') || input.includes('option one') || input.includes('first option')) {
+            startNavigation(0);
+          } else if (input.includes('option 2') || input.includes('option two') || input.includes('second option')) {
+            startNavigation(1);
+          } else if (input.includes('option 3') || input.includes('option three') || input.includes('third option')) {
+            startNavigation(2);
           }
           break;
-      }
-    }
-
-    function checkBothLocationsSelected() {
-      const currentLocation = document.getElementById('current-location').value;
-      const destination = document.getElementById('destination').value;
-      
-      if (currentLocation && destination) {
-        announceToUser('CURRENT LOCATION AND DESTINATION SELECTED SUCCESSFULLY.');
-        voiceGuidedFlow.step = 3;
-        setTimeout(() => handleVoiceGuidedFlow(), 2000);
       }
     }
 
@@ -951,107 +841,13 @@
     function setStartLocation(location) {
       const startSelect = document.getElementById('current-location');
       startSelect.value = location;
-      announceToUser(`Start location set to ${location}.`);
+      speakMessage(`Start location set to ${location}.`);
     }
 
     function setDestination(location) {
       const destSelect = document.getElementById('destination');
       destSelect.value = location;
-      announceToUser(`Destination set to ${location}.`);
-    }
-
-    function setAccessibilityRequirements(input) {
-      const wheelchairCheckbox = document.getElementById('wheelchair-access');
-      const voiceGuideCheckbox = document.getElementById('voice-guide');
-      const stepFreeCheckbox = document.getElementById('step-free');
-
-      // Reset all checkboxes first
-      wheelchairCheckbox.checked = false;
-      stepFreeCheckbox.checked = false;
-      // Keep voice guide enabled by default
-      voiceGuideCheckbox.checked = true;
-
-      let selectedOptions = [];
-
-      if (input.includes('wheelchair') || input.includes('wheel chair')) {
-        wheelchairCheckbox.checked = true;
-        selectedOptions.push('Wheelchair Access');
-      }
-
-      if (input.includes('voice guide') || input.includes('voice') || input.includes('audio')) {
-        voiceGuideCheckbox.checked = true;
-        if (!selectedOptions.includes('Voice Guide')) {
-          selectedOptions.push('Voice Guide');
-        }
-      }
-
-      if (input.includes('step free') || input.includes('step-free') || input.includes('no steps')) {
-        stepFreeCheckbox.checked = true;
-        selectedOptions.push('Step-Free Path');
-      }
-
-      if (input.includes('none') || input.includes('no requirements') || input.includes('nothing')) {
-        wheelchairCheckbox.checked = false;
-        stepFreeCheckbox.checked = false;
-        selectedOptions = [];
-      }
-
-      // Always keep voice guide enabled
-      if (!voiceGuideCheckbox.checked) {
-        voiceGuideCheckbox.checked = true;
-        selectedOptions.push('Voice Guide');
-      }
-
-      const message = selectedOptions.length > 0 
-        ? `Accessibility requirements set: ${selectedOptions.join(', ')}.`
-        : 'No special accessibility requirements selected. Voice Guide remains enabled.';
-      
-      announceToUser(message);
-    }
-
-    function restartVoiceGuidedFlow() {
-      voiceGuidedFlow.step = 1;
-      voiceGuidedFlow.isCompleted = false;
-      routeOptionsShown = false;
-      availableRoutes = [];
-      
-      // Reset form
-      document.getElementById('current-location').value = '';
-      document.getElementById('destination').value = '';
-      document.getElementById('wheelchair-access').checked = false;
-      document.getElementById('voice-guide').checked = true;
-      document.getElementById('step-free').checked = false;
-      
-      // Hide route results if visible
-      document.getElementById('route-results').classList.add('hidden');
-      
-      setTimeout(() => handleVoiceGuidedFlow(), 2000);
-    }
-
-    function showListeningIndicator() {
-      document.getElementById('listening-indicator').style.display = 'block';
-    }
-
-    function hideListeningIndicator() {
-      document.getElementById('listening-indicator').style.display = 'none';
-    }
-
-    function announceSelection(element, type) {
-      if (voiceAssistanceEnabled) {
-        announceToUser(`${type}: ${element.value}`);
-      }
-    }
-
-    function announceCheckbox(element, label) {
-      if (voiceAssistanceEnabled) {
-        announceToUser(`${label} ${element.checked ? 'enabled' : 'disabled'}`);
-      }
-    }
-
-    function announceButtonClick(label) {
-      if (voiceAssistanceEnabled) {
-        announceToUser(`You clicked ${label}`);
-      }
+      speakMessage(`Destination set to ${location}.`);
     }
 
     function handleRouteSearch(event) {
@@ -1061,14 +857,14 @@
       const destination = document.getElementById('destination').value;
       
       if (!destination || !currentLocation) {
-        announceToUser('Please ensure both start location and destination are selected.');
+        speakMessage('Please ensure both start location and destination are selected.');
         return;
       }
 
       const routeButton = document.getElementById('route-button-text');
       routeButton.innerHTML = '<div class="loading-spinner mr-2"></div> Finding Routes...';
       
-      announceToUser('Searching for accessible routes. Please wait...');
+      speakMessage('Searching for accessible routes. Please wait...');
 
       setTimeout(() => {
         displayRouteOptions(currentLocation, destination);
@@ -1087,7 +883,6 @@
       };
 
       const routes = generateRoutes(start, end, accessibilityOptions);
-      availableRoutes = routes;
       
       routeCards.innerHTML = routes.map((route, index) => `
         <div class="route-card glass-strong p-6 rounded-2xl hover-light" data-route-index="${index}">
@@ -1181,16 +976,11 @@
           routes.forEach((route, index) => {
             routeAnnouncement += `Option ${index + 1}: ${route.name}, Duration ${route.duration}, Accessibility rating ${route.accessibilityRating} out of 5 stars. `;
           });
-          routeAnnouncement += ' ';
-          announceToUser(routeAnnouncement);
+          routeAnnouncement += 'You can now choose to start navigation for any route.';
+          speakMessage(routeAnnouncement);
           
-          // Set the flag and move to option selection step
-          routeOptionsShown = true;
-          voiceGuidedFlow.step = 5;
-          
-          setTimeout(() => {
-            askForOptionSelection();
-          }, 3000);
+          // Ask user to select an option
+          askForRouteSelection();
         }, 1000);
       }, 300);
     }
@@ -1282,7 +1072,7 @@
       
       currentRoute = routeIndex;
       
-      announceToUser(`Starting Navigation for option ${routeIndex + 1}. Opening Google Maps with voice guidance enabled.`);
+      speakMessage(`STARTING NAVIGATION FOR OPTION ${routeIndex + 1}. Opening Google Maps with voice guidance enabled.`);
 
       document.getElementById('map-overlay').style.display = 'flex';
       
@@ -1305,14 +1095,11 @@
       
       window.open(mapsUrl, '_blank');
       
-      announceToUser('Google Maps opened with your accessible route. MTC Buses and Train routes are highlighted with voice navigation ready.');
-      
       closeMapOverlay();
     }
 
     function closeMapOverlay() {
       document.getElementById('map-overlay').style.display = 'none';
-      announceToUser('Map overlay closed.');
     }
 
     function shareRoute(routeIndex) {
@@ -1323,8 +1110,6 @@
           title: 'Accessible Route - Chennai',
           text: shareText,
           url: window.location.href
-        }).then(() => {
-          announceToUser('Route shared successfully!');
         }).catch(() => {
           fallbackShare(shareText);
         });
@@ -1336,11 +1121,7 @@
     function fallbackShare(text) {
       if (navigator.clipboard) {
         const shareUrl = `${window.location.href}?route=${currentRoute}`;
-        navigator.clipboard.writeText(`${text} ${shareUrl}`).then(() => {
-          announceToUser('Route link copied to clipboard!');
-        });
-      } else {
-        announceToUser('Sharing not supported. You can manually copy the page URL to share.');
+        navigator.clipboard.writeText(`${text} ${shareUrl}`);
       }
     }
 
@@ -1359,68 +1140,39 @@
         
         savedRoutes.push(routeData);
         sessionStorage.setItem('savedRoutes', JSON.stringify(savedRoutes));
-        
-        announceToUser(`Route "${routeName}" saved to your favorites!`);
-      } else {
-        announceToUser('Route saved! (Note: Browser storage not available)');
       }
     }
 
-    function announceToUser(message) {
-      if (message === lastSpokenMessage) return;
-
-      clearTimeout(debounceTimeout);
-      debounceTimeout = setTimeout(() => {
+    function speakMessage(message) {
+      if (speechSynthesis) {
         speechSynthesis.cancel();
         
-        if (voiceAssistanceEnabled && speechSynthesis) {
-          const utterance = new SpeechSynthesisUtterance(message);
-          utterance.rate = 1.0;
-          utterance.pitch = 1;
-          utterance.volume = 1;
-          utterance.lang = 'en-US';
+        const utterance = new SpeechSynthesisUtterance(message);
+        utterance.rate = 0.9;
+        utterance.pitch = 1;
+        utterance.volume = 1;
+        utterance.lang = 'en-GB';
 
-          const voices = speechSynthesis.getVoices();
-          if (voices.length > 0) {
-            const preferredVoice = voices.find(voice => 
-              voice.lang === 'en-US' && voice.localService
-            ) || voices.find(voice => 
-              voice.lang.startsWith('en-') && voice.localService
-            ) || voices.find(voice => 
-              voice.lang === 'en-US'
-            );
-            
-            if (preferredVoice) {
-              utterance.voice = preferredVoice;
-            }
+        const voices = speechSynthesis.getVoices();
+        if (voices.length > 0) {
+          const preferredVoice = voices.find(voice => 
+            voice.lang === 'en-GB' && voice.localService && voice.name.includes('Enhanced')
+          ) || voices.find(voice => 
+            voice.lang === 'en-GB' && voice.localService
+          ) || voices.find(voice => 
+            voice.lang.startsWith('en-') && voice.localService
+          ) || voices.find(voice => 
+            voice.lang === 'en-GB'
+          );
+          
+          if (preferredVoice) {
+            utterance.voice = preferredVoice;
           }
-
-          speechSynthesis.speak(utterance);
-          lastSpokenMessage = message;
         }
-      }, 100);
+
+        speechSynthesis.speak(utterance);
+      }
     }
-
-    // Keyboard shortcuts
-    document.addEventListener('keydown', (event) => {
-      if (event.key === 'Escape') {
-        closeMapOverlay();
-      }
-      
-      // Space bar to restart voice flow
-      if (event.key === ' ' && event.ctrlKey) {
-        event.preventDefault();
-        announceToUser('Restarting voice guided flow.');
-        restartVoiceGuidedFlow();
-      }
-    });
-
-    // Focus management
-    window.addEventListener('focus', (event) => {
-      if (event.target.matches('button, input, select, textarea, a')) {
-        event.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
-    }, true);
 
     // Cleanup on page unload
     window.addEventListener('beforeunload', () => {
